@@ -353,20 +353,20 @@ export default function Dashboard({ user, token, setActivePage }) {
             </div>
 
             <div className="glass-card metric-card">
+              <div className="metric-icon" style={{ backgroundColor: 'rgba(59, 130, 246, 0.15)', color: 'var(--accent-light)' }}>💉</div>
+              <div>
+                <p style={{ fontSize: '13px', color: 'var(--text-secondary)' }}>Ngày tiêm chủng dịch vụ</p>
+                <div className="metric-val" style={{ color: 'var(--accent-light)' }}>{stats.vaccinations} công</div>
+              </div>
+            </div>
+
+            <div className="glass-card metric-card">
               <div className="metric-icon">🛡️</div>
               <div>
                 <p style={{ fontSize: '13px', color: 'var(--text-secondary)' }}>Độc hại theo lương / Hiện vật</p>
                 <div className="metric-val" style={{ fontSize: '18px', color: 'var(--color-holiday)', marginTop: '4px' }}>
                   {user.has_toxic_salary ? `${stats.toxicSalary} công` : 'Không'} / {user.has_toxic_in_kind ? `${stats.toxicInKind} công` : 'Không'}
                 </div>
-              </div>
-            </div>
-
-            <div className="glass-card metric-card">
-              <div className="metric-icon" style={{ backgroundColor: 'rgba(59, 130, 246, 0.15)', color: 'var(--accent-light)' }}>💉</div>
-              <div>
-                <p style={{ fontSize: '13px', color: 'var(--text-secondary)' }}>Ngày tiêm chủng dịch vụ</p>
-                <div className="metric-val" style={{ color: 'var(--accent-light)' }}>{stats.vaccinations} công</div>
               </div>
             </div>
           </div>

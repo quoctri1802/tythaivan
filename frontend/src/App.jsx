@@ -162,11 +162,16 @@ export default function App() {
       </aside>
 
       {/* Main Content Area */}
-      <main className="main-content">
-        {activePage === 'dashboard' && <Dashboard user={user} token={token} setActivePage={setActivePage} />}
-        {activePage === 'attendance' && <AttendanceTable user={user} token={token} />}
-        {activePage === 'report' && <ReportViewer user={user} token={token} />}
-        {activePage === 'settings' && <Settings user={user} token={token} />}
+      <main className="main-content" style={{ display: 'flex', flexDirection: 'column', minHeight: '100vh' }}>
+        <div style={{ flex: 1 }}>
+          {activePage === 'dashboard' && <Dashboard user={user} token={token} setActivePage={setActivePage} />}
+          {activePage === 'attendance' && <AttendanceTable user={user} token={token} />}
+          {activePage === 'report' && <ReportViewer user={user} token={token} />}
+          {activePage === 'settings' && <Settings user={user} token={token} />}
+        </div>
+        <footer style={{ marginTop: '32px', paddingTop: '20px', borderTop: '1px solid var(--glass-border)', textAlign: 'center', fontSize: '12px', color: 'var(--text-muted)' }}>
+          Hệ thống Quản lý Chấm công & Phụ cấp Độc hại Trạm Y tế Phường Hải Vân | Design by tritnq @2026
+        </footer>
       </main>
     </div>
   );
