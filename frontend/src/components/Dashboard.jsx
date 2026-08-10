@@ -25,7 +25,11 @@ export default function Dashboard({ user, token, setActivePage }) {
     unpaid: 0,
     toxicSalary: 0,
     toxicInKind: 0,
-    vaccinations: 0
+    vaccinations: 0,
+    deptWorkDays: 0,
+    deptDuties: 0,
+    deptVaccinations: 0,
+    employeeCount: 0
   });
   const [approvalStatus, setApprovalStatus] = useState('draft');
   const [loading, setLoading] = useState(true);
@@ -39,7 +43,7 @@ export default function Dashboard({ user, token, setActivePage }) {
 
   useEffect(() => {
     fetchStats();
-    if (user.role === 'employee') {
+    if (user.role === 'employee' || user.role === 'manager') {
       fetchTodayAttendance();
     }
   }, [user, month, year]);
@@ -88,7 +92,7 @@ export default function Dashboard({ user, token, setActivePage }) {
       if (response.ok) {
         const todayRecord = data.find(r => {
           const rDateStr = new Date(r.date).toISOString().split('T')[0];
-          return rDateStr === todayDateStr;
+          return rDateStr === todayDateStr && r.employee_id === user.id;
         });
 
         if (todayRecord) {
@@ -146,52 +150,57 @@ export default function Dashboard({ user, token, setActivePage }) {
   };
 
   const calculateStats = (records) => {
-    if (user.role === 'employee') {
-      let w = 0, d = 0, l = 0, u = 0, ts = 0, tk = 0, vac = 0;
-      records.forEach(r => {
-        const sym = r.symbol;
-        if (['+', '-'].includes(sym)) w += (sym === '+' ? 1 : 0.5);
-        if (r.symbol === 'T') d++;
-        if (r.symbol === 'Tc') vac++;
-        if (['P', 'Pcđ', 'BL'].includes(sym)) l++;
-        if (sym === 'No') u++;
-        
-        const isActive = ['+', '-', 'T', 'Tc', 'TTc', 'Td', 'cd'].includes(sym);
-        if (user.has_toxic_salary && isActive) ts++;
-        
-        if (user.has_toxic_in_kind) {
-          if (sym === 'T') {
-            tk += 2;
-          } else {
-            const dateObj = new Date(r.date);
-            const isWkDay = dateObj.getDay() !== 0 && dateObj.getDay() !== 6;
-            if (isWkDay && sym === '+') {
-              tk += 1;
-            }
+    // 1. Calculate personal stats (for employee or manager)
+    let w = 0, d = 0, l = 0, u = 0, ts = 0, tk = 0, vac = 0;
+    const personalRecords = records.filter(r => r.employee_id === user.id);
+    
+    personalRecords.forEach(r => {
+      const sym = r.symbol;
+      if (['+', '-'].includes(sym)) w += (sym === '+' ? 1 : 0.5);
+      if (r.symbol === 'T') d++;
+      if (r.symbol === 'Tc') vac++;
+      if (['P', 'Pcđ', 'BL'].includes(sym)) l++;
+      if (sym === 'No') u++;
+      
+      const isActive = ['+', '-', 'T', 'Tc', 'TTc', 'Td', 'cd'].includes(sym);
+      if (user.has_toxic_salary && isActive) ts++;
+      
+      if (user.has_toxic_in_kind) {
+        if (sym === 'T') {
+          tk += 2;
+        } else {
+          const dateObj = new Date(r.date);
+          const isWkDay = dateObj.getDay() !== 0 && dateObj.getDay() !== 6;
+          if (isWkDay && sym === '+') {
+            tk += 1;
           }
         }
-      });
-      setStats({ workDays: w, duties: d, leaves: l, unpaid: u, toxicSalary: ts, toxicInKind: tk, vaccinations: vac });
-    } else {
-      let totalW = 0, totalD = 0, totalVac = 0, employeesSet = new Set();
-      records.forEach(r => {
-        employeesSet.add(r.employee_id);
-        const sym = r.symbol;
-        if (['+', '-'].includes(sym)) totalW += (sym === '+' ? 1 : 0.5);
-        if (sym === 'T') totalD++;
-        if (sym === 'Tc') totalVac++;
-      });
-      setStats({
-        workDays: totalW,
-        duties: totalD,
-        employeeCount: employeesSet.size,
-        leaves: 0,
-        unpaid: 0,
-        toxicSalary: 0,
-        toxicInKind: 0,
-        vaccinations: totalVac
-      });
-    }
+      }
+    });
+
+    // 2. Calculate department stats (for manager or director or admin)
+    let totalW = 0, totalD = 0, totalVac = 0, employeesSet = new Set();
+    records.forEach(r => {
+      employeesSet.add(r.employee_id);
+      const sym = r.symbol;
+      if (['+', '-'].includes(sym)) totalW += (sym === '+' ? 1 : 0.5);
+      if (sym === 'T') totalD++;
+      if (sym === 'Tc') totalVac++;
+    });
+
+    setStats({
+      workDays: w,
+      duties: d,
+      leaves: l,
+      unpaid: u,
+      toxicSalary: ts,
+      toxicInKind: tk,
+      vaccinations: vac,
+      deptWorkDays: totalW,
+      deptDuties: totalD,
+      deptVaccinations: totalVac,
+      employeeCount: employeesSet.size
+    });
   };
 
   const getApprovalText = (status) => {
@@ -244,13 +253,13 @@ export default function Dashboard({ user, token, setActivePage }) {
         </div>
       </div>
 
-      {user.role === 'employee' ? (
-        // Employee Dashboard
-        <div>
+      {/* 1. PERSONAL SECTION (For Employee and Department Manager) */}
+      {['employee', 'manager'].includes(user.role) && (
+        <div style={{ marginBottom: '32px' }}>
           {/* Today Quick Check-in Card (High Mobile UX) */}
           <div className="glass-card" style={{ marginBottom: '32px', borderLeft: '4px solid var(--primary)' }}>
             <h3 style={{ fontSize: '16px', fontWeight: '600', marginBottom: '4px', color: '#fff' }}>
-              📲 Chấm Công Nhanh Hôm Nay
+              📲 Chấm Công Nhanh Hôm Nay (Cá nhân)
             </h3>
             <p style={{ fontSize: '13px', color: 'var(--text-secondary)', marginBottom: '16px' }}>
               {getVietnameseWeekday()}, ngày {today.getDate().toString().padStart(2, '0')}/{currentRealMonth.toString().padStart(2, '0')}/{currentRealYear}
@@ -335,7 +344,7 @@ export default function Dashboard({ user, token, setActivePage }) {
 
           <h2 style={{ marginBottom: '20px', color: 'var(--primary-light)' }}>Thống Kê Cá Nhân - Tháng {month}/{year}</h2>
           
-          <div className="metrics-row">
+          <div className="metrics-row" style={{ marginBottom: '32px' }}>
             <div className="glass-card metric-card">
               <div className="metric-icon">📅</div>
               <div>
@@ -378,21 +387,17 @@ export default function Dashboard({ user, token, setActivePage }) {
               </div>
             </div>
           </div>
-
-          <div className="glass-card" style={{ padding: '24px' }}>
-            <h3 style={{ fontSize: '16px', fontWeight: '600', marginBottom: '8px' }}>Chỉnh sửa nâng cao</h3>
-            <p style={{ marginBottom: '16px', fontSize: '14px', color: 'var(--text-secondary)' }}>Xem chi tiết toàn bộ các ngày trong tháng, điều chỉnh chấm công các ngày trước hoặc xem lịch nghỉ lễ của khoa phòng.</p>
-            <button className="btn btn-primary" onClick={() => setActivePage('attendance')}>
-              📅 Xem chi tiết lịch tháng
-            </button>
-          </div>
         </div>
-      ) : (
-        // Manager / Director / Admin Dashboard
-        <div>
-          <h2 style={{ marginBottom: '20px', color: 'var(--primary-light)' }}>Thống Kê Bộ Phận - Tháng {month}/{year}</h2>
+      )}
+
+      {/* 2. MANAGEMENT & DEPARTMENT SECTION (For Manager, Director, and Admin) */}
+      {['manager', 'director', 'admin'].includes(user.role) && (
+        <div style={{ marginTop: user.role === 'manager' ? '32px' : '0' }}>
+          <h2 style={{ marginBottom: '20px', color: 'var(--primary-light)' }}>
+            {user.role === 'manager' ? 'Thống Kê Khoa / Bộ Phận' : 'Thống Kê Toàn Đơn Vị'} - Tháng {month}/{year}
+          </h2>
           
-          <div className="metrics-row">
+          <div className="metrics-row" style={{ marginBottom: '32px' }}>
             <div className="glass-card metric-card">
               <div className="metric-icon">👥</div>
               <div>
@@ -405,7 +410,7 @@ export default function Dashboard({ user, token, setActivePage }) {
               <div className="metric-icon">📅</div>
               <div>
                 <p style={{ fontSize: '13px', color: 'var(--text-secondary)' }}>Tổng công làm việc</p>
-                <div className="metric-val" style={{ color: 'var(--primary-light)' }}>{stats.workDays}</div>
+                <div className="metric-val" style={{ color: 'var(--primary-light)' }}>{stats.deptWorkDays}</div>
               </div>
             </div>
 
@@ -413,7 +418,7 @@ export default function Dashboard({ user, token, setActivePage }) {
               <div className="metric-icon">⏰</div>
               <div>
                 <p style={{ fontSize: '13px', color: 'var(--text-secondary)' }}>Tổng số ca trực đã chấm</p>
-                <div className="metric-val" style={{ color: 'var(--color-duty)' }}>{stats.duties}</div>
+                <div className="metric-val" style={{ color: 'var(--color-duty)' }}>{stats.deptDuties}</div>
               </div>
             </div>
 
@@ -421,7 +426,7 @@ export default function Dashboard({ user, token, setActivePage }) {
               <div className="metric-icon" style={{ backgroundColor: 'rgba(59, 130, 246, 0.15)', color: 'var(--accent-light)' }}>💉</div>
               <div>
                 <p style={{ fontSize: '13px', color: 'var(--text-secondary)' }}>Tổng công tiêm chủng</p>
-                <div className="metric-val" style={{ color: 'var(--accent-light)' }}>{stats.vaccinations} ca</div>
+                <div className="metric-val" style={{ color: 'var(--accent-light)' }}>{stats.deptVaccinations} ca</div>
               </div>
             </div>
 
@@ -462,6 +467,17 @@ export default function Dashboard({ user, token, setActivePage }) {
               </button>
             </div>
           </div>
+        </div>
+      )}
+
+      {/* 3. SUBTITLE EXTRA ACTION FOR EMPLOYEE ONLY */}
+      {user.role === 'employee' && (
+        <div className="glass-card" style={{ padding: '24px', marginTop: '24px' }}>
+          <h3 style={{ fontSize: '16px', fontWeight: '600', marginBottom: '8px' }}>Chỉnh sửa nâng cao</h3>
+          <p style={{ marginBottom: '16px', fontSize: '14px', color: 'var(--text-secondary)' }}>Xem chi tiết toàn bộ các ngày trong tháng, điều chỉnh chấm công các ngày trước hoặc xem lịch nghỉ lễ của khoa phòng.</p>
+          <button className="btn btn-primary" onClick={() => setActivePage('attendance')}>
+            📅 Xem chi tiết lịch tháng
+          </button>
         </div>
       )}
     </div>
