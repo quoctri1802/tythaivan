@@ -51,6 +51,7 @@ export default function Login({ onLoginSuccess }) {
       background: 'radial-gradient(circle at top right, rgba(13, 148, 136, 0.15), transparent), radial-gradient(circle at bottom left, rgba(59, 130, 246, 0.15), transparent), #0f172a'
     }}>
       <div className="glass-card" style={{ width: '400px', textAlign: 'center' }}>
+        <div style={{ marginBottom: '24px' }}>
           <img 
             src="/logo.jpg" 
             alt="Logo TYT Hải Vân" 
