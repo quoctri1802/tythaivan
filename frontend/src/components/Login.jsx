@@ -66,7 +66,7 @@ export default function Login({ onLoginSuccess }) {
               display: 'block' 
             }} 
           />
-          <h2 style={{ fontSize: '22px', fontWeight: '700', marginBottom: '8px', color: '#fff' }}>TRẠM Y TẾ HẢI VÂN</h2>
+          <h2 style={{ fontSize: '22px', fontWeight: '700', marginBottom: '8px', color: '#fff' }}>TRẠM Y PHƯỜNG TẾ HẢI VÂN</h2>
           <p style={{ fontSize: '13px', color: 'var(--text-secondary)' }}>Hệ thống Quản lý Chấm công & Phụ cấp Độc hại</p>
         </div>
 
