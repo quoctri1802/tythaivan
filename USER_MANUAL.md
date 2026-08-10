@@ -13,7 +13,7 @@ Dưới đây là danh sách tài khoản đã được cài đặt sẵn để 
 | :--- | :--- | :--- | :--- | :--- | :--- |
 | **1** | `admin` | Quản trị viên Hệ thống | Quản trị viên | Quản trị hệ thống, quản lý danh sách nhân sự | `admin123` |
 | **2** | `hieu.nth` | Nguyễn Thị Hoàng Hiếu | Phụ trách bộ phận | **Quản lý khoa**: Duyệt bộ phận, sửa công của nhân viên | `hieunth123` |
-| **3** | `khanh.nd` | Nguyễn Đình Khánh | Trưởng khoa | **Thủ trưởng / Trưởng khoa**: Xem toàn đơn vị, tự chấm công, khóa sổ công và xuất Excel | `khanhnd123` |
+| **3** | `khanh.nd` | Nguyễn Đình Khánh | Trưởng khoa | **Trưởng khoa**: Xem toàn khoa, tự chấm công, khóa sổ công và xuất Excel | `khanhnd123` |
 | **4** | `phuong.vm` | Vũ Minh Phương | Cán bộ y tế | **Nhân viên**: Tự chấm công cá nhân | `phuongvm123` |
 | **5** | `suong.nth` | Nguyễn Thị Hồng Sương | Cán bộ y tế | **Nhân viên**: Tự chấm công cá nhân | `suongnth123` |
 | **6** | `tuyen.ll` | Lương Lam Tuyền | Cán bộ y tế | **Nhân viên**: Tự chấm công cá nhân | `tuyenll123` |
