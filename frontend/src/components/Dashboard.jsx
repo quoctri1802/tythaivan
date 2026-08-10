@@ -112,6 +112,10 @@ export default function Dashboard({ user, token, setActivePage }) {
 
   const handleTodayCheckIn = async (e) => {
     e.preventDefault();
+    if (todaySaved) {
+      const confirmUpdate = window.confirm('Bạn đã chấm công ngày hôm nay rồi. Bạn có chắc chắn muốn thay đổi và cập nhật lại ký hiệu chấm công mới không?');
+      if (!confirmUpdate) return;
+    }
     try {
       setTodayLoading(true);
       setTodayMessage('');
