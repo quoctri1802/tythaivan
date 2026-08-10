@@ -67,9 +67,33 @@ export default function App() {
           <img src="/logo.jpg" alt="Logo" style={{ width: '32px', height: '32px', borderRadius: '50%', objectFit: 'cover' }} />
           <span style={{ fontWeight: 'bold', color: 'white', fontSize: '15px', letterSpacing: '-0.3px' }}>TYT HẢI VÂN</span>
         </div>
-        <button className="mobile-menu-toggle" onClick={() => setMobileMenuOpen(!mobileMenuOpen)}>
-          {mobileMenuOpen ? '✕' : '☰'}
-        </button>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+          <button 
+            onClick={() => {
+              if (window.confirm('Bạn có chắc chắn muốn đăng xuất không?')) {
+                handleLogout();
+              }
+            }} 
+            style={{ 
+              background: 'rgba(244, 63, 94, 0.12)', 
+              border: '1px solid rgba(244, 63, 94, 0.25)', 
+              color: '#f43f5e', 
+              fontSize: '12px', 
+              fontWeight: '600',
+              borderRadius: '6px',
+              padding: '5px 10px',
+              cursor: 'pointer',
+              display: 'flex',
+              alignItems: 'center',
+              gap: '4px'
+            }}
+          >
+            🚪 Thoát
+          </button>
+          <button className="mobile-menu-toggle" onClick={() => setMobileMenuOpen(!mobileMenuOpen)}>
+            {mobileMenuOpen ? '✕' : '☰'}
+          </button>
+        </div>
       </header>
 
       {/* Backdrop overlay for mobile menu */}
