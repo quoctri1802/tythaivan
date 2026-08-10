@@ -65,7 +65,7 @@ export default function App() {
       <header className="mobile-header">
         <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
           <img src="/logo.jpg" alt="Logo" style={{ width: '32px', height: '32px', borderRadius: '50%', objectFit: 'cover' }} />
-          <span style={{ fontWeight: 'bold', color: 'white', fontSize: '15px', letterSpacing: '-0.3px' }}>TYT HẢI VÂN</span>
+          <span style={{ fontWeight: 'bold', color: 'white', fontSize: '15px', letterSpacing: '-0.3px' }}>TYT PHƯỜNG HẢI VÂN</span>
         </div>
         <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
           <button 
@@ -106,7 +106,7 @@ export default function App() {
         <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '24px' }}>
           <img src="/logo.jpg" alt="Logo TYT Hải Vân" style={{ width: '38px', height: '38px', borderRadius: '50%', objectFit: 'cover', border: '1.5px solid rgba(255, 255, 255, 0.2)' }} />
           <div>
-            <h2 style={{ fontSize: '16px', fontWeight: 'bold', margin: 0, color: 'white', letterSpacing: '-0.3px' }}>TYT PHƯỜNG HẢI VÂN</h2>
+            <h2 style={{ fontSize: '15px', fontWeight: 'bold', margin: 0, color: 'white', letterSpacing: '-0.3px' }}>TYT PHƯỜNG HẢI VÂN</h2>
             <span style={{ fontSize: '10px', color: 'var(--text-muted)' }}>PHƯỜNG HẢI VÂN</span>
           </div>
         </div>
