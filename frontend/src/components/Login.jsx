@@ -122,9 +122,8 @@ export default function Login({ onLoginSuccess }) {
           </button>
         </form>
 
-        <div style={{ marginTop: '24px', fontSize: '12px', color: 'var(--text-muted)' }}>
-          <p>Tài khoản mẫu: <b>khanh.nd</b> (NV) / <b>hieu.nth</b> (QL) / <b>director</b> (Sếp)</p>
-          <p style={{ marginTop: '4px' }}>Mật khẩu: mã không dấu + 123 (Ví dụ: khanhnd123, hieunth123, director123)</p>
+        <div style={{ marginTop: '24px', fontSize: '12px', color: 'var(--text-muted)', letterSpacing: '0.5px' }}>
+          <p>Design by tritnq @2026</p>
         </div>
       </div>
     </div>
