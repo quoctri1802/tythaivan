@@ -106,3 +106,11 @@ graph TD
      - **Độc hại hiện vật**: Áp dụng cho đối tượng hưởng bồi dưỡng bằng hiện vật (xuất hiện trong Sheet 4), có thể chọn mức hưởng (Mức 1, 2, 3, 4).
 3. **Cấu hình ngày nghỉ lễ**:
    - Chuyển sang tab **Lịch Nghỉ Lễ** để kiểm tra danh sách các ngày nghỉ lễ trong năm. Ca trực của nhân viên rơi vào các ngày này sẽ tự động được tính là trực ngày lễ/Tết (được tính phụ cấp đặc biệt).
+
+> [!NOTE]
+> **Công thức tính Độc hại bằng hiện vật (Sheet 4)**:
+> Số công bồi dưỡng độc hại hiện vật trong tháng của nhân viên được tính tự động theo công thức chuẩn hóa:
+> **`Tổng ngày độc hại hiện vật = (Số ngày đi làm ngày thường * 1) + (Số ca trực 24h * 2)`**
+> *Trong đó:*
+> * **Số ngày đi làm ngày thường (x 1)**: Bao gồm các ngày đi làm có mặt đầy đủ `+`, tiêm chủng dịch vụ `Tc`, đi công tác `CT`, đi hội nghị học tập `H` (mỗi ngày tính 1); và làm nửa buổi `-` (tính 0.5) rơi vào các ngày làm việc hành chính từ thứ Hai đến thứ Sáu (loại trừ các ngày thứ Bảy, Chủ Nhật và các ngày nghỉ Lễ/Tết).
+> * **Số ca trực 24h (x 2)**: Mỗi ca trực chuyên môn `T` (24 giờ liên tục) được tính hệ số 2 công bồi dưỡng độc hại hiện vật (áp dụng cho mọi ngày trong tuần bao gồm cả ngày thường, ngày nghỉ cuối tuần và ngày lễ).
