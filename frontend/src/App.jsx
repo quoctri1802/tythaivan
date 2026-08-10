@@ -82,7 +82,7 @@ export default function App() {
         <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '24px' }}>
           <img src="/logo.jpg" alt="Logo TYT Hải Vân" style={{ width: '38px', height: '38px', borderRadius: '50%', objectFit: 'cover', border: '1.5px solid rgba(255, 255, 255, 0.2)' }} />
           <div>
-            <h2 style={{ fontSize: '16px', fontWeight: 'bold', margin: 0, color: 'white', letterSpacing: '-0.3px' }}>TYT HẢI VÂN</h2>
+            <h2 style={{ fontSize: '16px', fontWeight: 'bold', margin: 0, color: 'white', letterSpacing: '-0.3px' }}>TYT PHƯỜNG HẢI VÂN</h2>
             <span style={{ fontSize: '10px', color: 'var(--text-muted)' }}>PHƯỜNG HẢI VÂN</span>
           </div>
         </div>
@@ -170,7 +170,7 @@ export default function App() {
           {activePage === 'settings' && <Settings user={user} token={token} />}
         </div>
         <footer style={{ marginTop: '32px', paddingTop: '20px', borderTop: '1px solid var(--glass-border)', textAlign: 'center', fontSize: '12px', color: 'var(--text-muted)' }}>
-          Hệ thống Quản lý Chấm công & Phụ cấp Độc hại Trạm Y tế Phường Hải Vân | Design by tritnq @2026
+          Hệ thống Quản lý Chấm công & Phụ cấp Độc hại Trạm Y tế Phường Hải Vân | Design by tritnq @2026 trạm y tế phường Hải Vân
         </footer>
       </main>
     </div>
