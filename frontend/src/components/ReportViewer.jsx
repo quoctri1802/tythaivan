@@ -2,8 +2,9 @@ import React, { useState, useEffect } from 'react';
 import { API_BASE_URL } from '../config';
 
 export default function ReportViewer({ token }) {
-  const [month, setMonth] = useState(7);
-  const [year, setYear] = useState(2026);
+  const today = new Date();
+  const [month, setMonth] = useState(today.getMonth() + 1);
+  const [year, setYear] = useState(today.getFullYear());
   const [activeTab, setActiveTab] = useState('summary'); // 'summary', 'duty', 'toxic_salary', 'toxic_inkind'
   const [reportData, setReportData] = useState(null);
   const [loading, setLoading] = useState(false);

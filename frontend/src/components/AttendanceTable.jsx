@@ -2,8 +2,9 @@ import React, { useState, useEffect } from 'react';
 import { API_BASE_URL } from '../config';
 
 export default function AttendanceTable({ user, token }) {
-  const [month, setMonth] = useState(7);
-  const [year, setYear] = useState(2026);
+  const today = new Date();
+  const [month, setMonth] = useState(today.getMonth() + 1);
+  const [year, setYear] = useState(today.getFullYear());
   const [employees, setEmployees] = useState([]);
   const [attendance, setAttendance] = useState({}); // employee_id -> dateStr -> { symbol, notes }
   const [attendanceTypes, setAttendanceTypes] = useState([]);

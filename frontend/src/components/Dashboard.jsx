@@ -15,8 +15,8 @@ export default function Dashboard({ user, token, setActivePage }) {
     return days[today.getDay()];
   };
 
-  const [month, setMonth] = useState(7); // Default to July for demo data
-  const [year, setYear] = useState(2026); // Default to 2026 for demo data
+  const [month, setMonth] = useState(currentRealMonth);
+  const [year, setYear] = useState(currentRealYear);
   
   const [stats, setStats] = useState({
     workDays: 0,
