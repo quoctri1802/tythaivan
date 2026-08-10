@@ -24,7 +24,8 @@ export default function Dashboard({ user, token, setActivePage }) {
     leaves: 0,
     unpaid: 0,
     toxicSalary: 0,
-    toxicInKind: 0
+    toxicInKind: 0,
+    vaccinations: 0
   });
   const [approvalStatus, setApprovalStatus] = useState('draft');
   const [loading, setLoading] = useState(true);
@@ -146,11 +147,12 @@ export default function Dashboard({ user, token, setActivePage }) {
 
   const calculateStats = (records) => {
     if (user.role === 'employee') {
-      let w = 0, d = 0, l = 0, u = 0, ts = 0, tk = 0;
+      let w = 0, d = 0, l = 0, u = 0, ts = 0, tk = 0, vac = 0;
       records.forEach(r => {
         const sym = r.symbol;
         if (['+', '-'].includes(sym)) w += (sym === '+' ? 1 : 0.5);
         if (r.symbol === 'T') d++;
+        if (r.symbol === 'Tc') vac++;
         if (['P', 'Pcđ', 'BL'].includes(sym)) l++;
         if (sym === 'No') u++;
         
@@ -161,14 +163,15 @@ export default function Dashboard({ user, token, setActivePage }) {
         const isWkDay = dateObj.getDay() !== 0 && dateObj.getDay() !== 6;
         if (user.has_toxic_in_kind && isWkDay && isActive) tk++;
       });
-      setStats({ workDays: w, duties: d, leaves: l, unpaid: u, toxicSalary: ts, toxicInKind: tk });
+      setStats({ workDays: w, duties: d, leaves: l, unpaid: u, toxicSalary: ts, toxicInKind: tk, vaccinations: vac });
     } else {
-      let totalW = 0, totalD = 0, employeesSet = new Set();
+      let totalW = 0, totalD = 0, totalVac = 0, employeesSet = new Set();
       records.forEach(r => {
         employeesSet.add(r.employee_id);
         const sym = r.symbol;
         if (['+', '-'].includes(sym)) totalW += (sym === '+' ? 1 : 0.5);
         if (sym === 'T') totalD++;
+        if (sym === 'Tc') totalVac++;
       });
       setStats({
         workDays: totalW,
@@ -177,7 +180,8 @@ export default function Dashboard({ user, token, setActivePage }) {
         leaves: 0,
         unpaid: 0,
         toxicSalary: 0,
-        toxicInKind: 0
+        toxicInKind: 0,
+        vaccinations: totalVac
       });
     }
   };
@@ -357,6 +361,14 @@ export default function Dashboard({ user, token, setActivePage }) {
                 </div>
               </div>
             </div>
+
+            <div className="glass-card metric-card">
+              <div className="metric-icon" style={{ backgroundColor: 'rgba(59, 130, 246, 0.15)', color: 'var(--accent-light)' }}>💉</div>
+              <div>
+                <p style={{ fontSize: '13px', color: 'var(--text-secondary)' }}>Ngày tiêm chủng dịch vụ</p>
+                <div className="metric-val" style={{ color: 'var(--accent-light)' }}>{stats.vaccinations} công</div>
+              </div>
+            </div>
           </div>
 
           <div className="glass-card" style={{ padding: '24px' }}>
@@ -394,6 +406,14 @@ export default function Dashboard({ user, token, setActivePage }) {
               <div>
                 <p style={{ fontSize: '13px', color: 'var(--text-secondary)' }}>Tổng số ca trực đã chấm</p>
                 <div className="metric-val" style={{ color: 'var(--color-duty)' }}>{stats.duties}</div>
+              </div>
+            </div>
+
+            <div className="glass-card metric-card">
+              <div className="metric-icon" style={{ backgroundColor: 'rgba(59, 130, 246, 0.15)', color: 'var(--accent-light)' }}>💉</div>
+              <div>
+                <p style={{ fontSize: '13px', color: 'var(--text-secondary)' }}>Tổng công tiêm chủng</p>
+                <div className="metric-val" style={{ color: 'var(--accent-light)' }}>{stats.vaccinations} ca</div>
               </div>
             </div>
 
