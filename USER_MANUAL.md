@@ -12,14 +12,13 @@ Dưới đây là danh sách tài khoản đã được cài đặt sẵn để 
 | STT | Tài khoản (Mã NV) | Họ và Tên | Chức danh hiển thị | Quyền hạn trong hệ thống | Mật khẩu mặc định |
 | :--- | :--- | :--- | :--- | :--- | :--- |
 | **1** | `admin` | Quản trị viên Hệ thống | Quản trị viên | Quản trị hệ thống, quản lý danh sách nhân sự | `admin123` |
-| **2** | `director` | Bác sĩ Nguyễn Văn Trưởng | Trưởng trạm | **Thủ trưởng**: Xem toàn đơn vị, khóa sổ công và xuất Excel | `director123` |
-| **3** | `hieu.nth` | Nguyễn Thị Hoàng Hiếu | Phụ trách bộ phận | **Quản lý khoa**: Duyệt bộ phận, sửa công của nhân viên | `hieunth123` |
-| **4** | `khanh.nd` | Nguyễn Đình Khánh | Cán bộ y tế | **Nhân viên**: Tự chấm công cá nhân (Có độc hại) | `khanhnd123` |
-| **5** | `phuong.vm` | Vũ Minh Phương | Cán bộ y tế | **Nhân viên**: Tự chấm công cá nhân | `phuongvm123` |
-| **6** | `suong.nth` | Nguyễn Thị Hồng Sương | Cán bộ y tế | **Nhân viên**: Tự chấm công cá nhân | `suongnth123` |
-| **7** | `tuyen.ll` | Lương Lam Tuyền | Cán bộ y tế | **Nhân viên**: Tự chấm công cá nhân | `tuyenll123` |
-| **8** | `thuong.pt` | Phan Thị Thương | Dược sĩ | **Nhân viên**: Tự chấm công cá nhân | `thuongpt123` |
-| **9** | `muoi.dh` | Đinh Hồng Mười | Kỹ thuật viên | **Nhân viên**: Tự chấm công cá nhân | `muoidh123` |
+| **2** | `hieu.nth` | Nguyễn Thị Hoàng Hiếu | Phụ trách bộ phận | **Quản lý khoa**: Duyệt bộ phận, sửa công của nhân viên | `hieunth123` |
+| **3** | `khanh.nd` | Nguyễn Đình Khánh | Trưởng khoa | **Thủ trưởng / Trưởng khoa**: Xem toàn đơn vị, tự chấm công, khóa sổ công và xuất Excel | `khanhnd123` |
+| **4** | `phuong.vm` | Vũ Minh Phương | Cán bộ y tế | **Nhân viên**: Tự chấm công cá nhân | `phuongvm123` |
+| **5** | `suong.nth` | Nguyễn Thị Hồng Sương | Cán bộ y tế | **Nhân viên**: Tự chấm công cá nhân | `suongnth123` |
+| **6** | `tuyen.ll` | Lương Lam Tuyền | Cán bộ y tế | **Nhân viên**: Tự chấm công cá nhân | `tuyenll123` |
+| **7** | `thuong.pt` | Phan Thị Thương | Dược sĩ | **Nhân viên**: Tự chấm công cá nhân | `thuongpt123` |
+| **8** | `muoi.dh` | Đinh Hồng Mười | Kỹ thuật viên | **Nhân viên**: Tự chấm công cá nhân | `muoidh123` |
 
 ---
 
