@@ -210,7 +210,7 @@ export default function Dashboard({ user, token, setActivePage }) {
   const getApprovalText = (status) => {
     switch (status) {
       case 'director_approved': return 'Đã phê duyệt (Đã khóa bảng công)';
-      case 'manager_approved': return 'Đang chờ thủ trưởng duyệt (Phụ trách đã duyệt)';
+      case 'manager_approved': return 'Đang chờ trưởng khoa duyệt (Phụ trách đã duyệt)';
       default: return 'Bản nháp (Chưa duyệt)';
     }
   };

@@ -138,7 +138,7 @@ export default function AttendanceTable({ user, token }) {
   const handleCellClick = (employee, day) => {
     // If locked by Director, only allow admin to edit
     if (approval.status === 'director_approved' && user.role !== 'admin') {
-      setMessage({ text: 'Bảng công đã được Thủ trưởng phê duyệt khóa, không thể chỉnh sửa.', type: 'danger' });
+      setMessage({ text: 'Bảng công đã được Trưởng khoa phê duyệt khóa, không thể chỉnh sửa.', type: 'danger' });
       return;
     }
 
@@ -487,7 +487,7 @@ export default function AttendanceTable({ user, token }) {
               Trạng thái phê duyệt: 
             </span>
             <span className={`status-badge ${approval.status === 'director_approved' ? 'status-approved-director' : (approval.status === 'manager_approved' ? 'status-approved-manager' : 'status-draft')}`}>
-              {approval.status === 'director_approved' ? 'Thủ trưởng đã khóa' : (approval.status === 'manager_approved' ? 'Phụ trách bộ phận đã duyệt' : 'Bản nháp')}
+              {approval.status === 'director_approved' ? 'Trưởng khoa đã khóa' : (approval.status === 'manager_approved' ? 'Phụ trách bộ phận đã duyệt' : 'Bản nháp')}
             </span>
           </div>
 
@@ -506,7 +506,7 @@ export default function AttendanceTable({ user, token }) {
 
             {user.role === 'director' && approval.status === 'manager_approved' && (
               <button className="btn btn-primary" onClick={() => handleApprove('director_approve')} disabled={loading}>
-                🔒 Khóa Bảng Công (Thủ trưởng)
+                🔒 Khóa Bảng Công (Trưởng khoa)
               </button>
             )}
           </div>

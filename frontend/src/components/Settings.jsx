@@ -389,7 +389,7 @@ export default function Settings({ user, token }) {
                   <select className="form-select" value={empRole} onChange={(e) => setEmpRole(e.target.value)}>
                     <option value="employee">Nhân viên (Employee)</option>
                     <option value="manager">Phụ trách bộ phận (Manager)</option>
-                    <option value="director">Thủ trưởng đơn vị (Director)</option>
+                    <option value="director">Trưởng khoa (Director)</option>
                     <option value="admin">Quản trị viên (Admin)</option>
                   </select>
                 </div>

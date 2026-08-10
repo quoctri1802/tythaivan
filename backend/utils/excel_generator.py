@@ -83,7 +83,7 @@ def update_signatures(ws, label_row, writer_name, manager_name, director_name):
                 ws.cell(name_row, col).value = manager_name
                 ws.cell(name_row, col).font = Font(name="Times New Roman", size=11, bold=True)
                 ws.cell(name_row, col).alignment = Alignment(horizontal="center")
-            elif 'thủ trưởng' in val_str:
+            elif 'thủ trưởng' in val_str or 'trưởng khoa' in val_str:
                 ws.cell(name_row, col).value = director_name
                 ws.cell(name_row, col).font = Font(name="Times New Roman", size=11, bold=True)
                 ws.cell(name_row, col).alignment = Alignment(horizontal="center")
@@ -324,7 +324,9 @@ def main():
         # Total Row
         total_row = start_row + max(1, target_count)
         ws.cell(total_row, 2).value = "Tổng cộng:"
-        ws.cell(total_row, 34).value = f"=SUM(AH{start_row}:AH{total_row - 1})"
+        cell = ws.cell(total_row, 34)
+        if type(cell).__name__ != 'MergedCell':
+            cell.value = f"=SUM(AH{start_row}:AH{total_row - 1})"
         
         # Signatures
         sig_label_row = None
@@ -400,7 +402,9 @@ def main():
         # Total Row
         total_row = start_row + max(1, target_count)
         ws.cell(total_row, 2).value = "Tổng cộng:"
-        ws.cell(total_row, 34).value = f"=SUM(AH{start_row}:AH{total_row - 1})"
+        cell = ws.cell(total_row, 34)
+        if type(cell).__name__ != 'MergedCell':
+            cell.value = f"=SUM(AH{start_row}:AH{total_row - 1})"
         
         # Signatures
         sig_label_row = None

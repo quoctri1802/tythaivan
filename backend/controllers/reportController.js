@@ -17,7 +17,7 @@ const calculateMonthlySummaries = async (month, year, departmentId) => {
     SELECT id, username, full_name, role, department_id, title, 
            has_toxic_salary, has_toxic_in_kind, toxic_in_kind_level 
     FROM employees 
-    WHERE role != 'admin' AND role != 'director'
+    WHERE role != 'admin'
   `;
   const empParams = [];
   if (departmentId) {

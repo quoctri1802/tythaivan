@@ -22,7 +22,7 @@ async function testExport() {
       `SELECT id, username, full_name, role, department_id, title, 
               has_toxic_salary, has_toxic_in_kind, toxic_in_kind_level 
        FROM employees 
-       WHERE role != 'admin' AND role != 'director' AND department_id = $1
+       WHERE role != 'admin' AND department_id = $1
        ORDER BY id ASC`,
       [deptId]
     );
@@ -191,6 +191,7 @@ async function testExport() {
       if (code !== 0) {
         console.error("❌ Python script failed with code", code);
         console.error("Stderr:", stderr);
+        console.error("Stdout:", stdout);
       } else {
         console.log(`\n=== TEST SUCCESSFUL ===`);
         console.log(`Excel file created at: g:\\QL cham cong\\Bao_cao_cham_cong_Thang_7_2026_TEST.xlsx`);
