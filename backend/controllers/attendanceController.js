@@ -218,7 +218,7 @@ const getApprovals = async (req, res) => {
 };
 
 const approveMonth = async (req, res) => {
-  const { month, year, department_id, action } = req.body; // action: 'manager_approve' or 'director_approve'
+  const { month, year, department_id, action } = req.body; // action: 'manager_approve', 'director_approve', 'admin_unlock'
 
   if (!month || !year || !department_id || !action) {
     return res.status(400).json({ message: 'Vui lòng cung cấp đầy đủ thông tin duyệt.' });
@@ -235,7 +235,11 @@ const approveMonth = async (req, res) => {
       }
     } else if (action === 'director_approve') {
       if (!['director', 'admin'].includes(req.user.role)) {
-        return res.status(403).json({ message: 'Chỉ thủ trưởng đơn vị mới được duyệt ở bước này.' });
+        return res.status(403).json({ message: 'Chỉ Trưởng khoa mới được duyệt ở bước này.' });
+      }
+    } else if (action === 'admin_unlock') {
+      if (req.user.role !== 'admin') {
+        return res.status(403).json({ message: 'Chỉ quản trị viên hệ thống mới được phép mở khóa bảng công.' });
       }
     }
 
@@ -266,7 +270,7 @@ const approveMonth = async (req, res) => {
       return res.json({ message: 'Phụ trách bộ phận đã duyệt bảng công thành công.' });
     } else if (action === 'director_approve') {
       if (currentStatus !== 'manager_approved' && req.user.role !== 'admin') {
-        return res.status(400).json({ message: 'Bảng công cần được phụ trách bộ phận duyệt trước khi thủ trưởng phê duyệt.' });
+        return res.status(400).json({ message: 'Bảng công cần được phụ trách bộ phận duyệt trước khi Trưởng khoa phê duyệt.' });
       }
 
       if (hasApproval) {
@@ -283,7 +287,19 @@ const approveMonth = async (req, res) => {
           [parseInt(department_id, 10), parseInt(month, 10), parseInt(year, 10), req.user.id]
         );
       }
-      return res.json({ message: 'Thủ trưởng đơn vị đã phê duyệt bảng công thành công (Khóa bảng công).' });
+      return res.json({ message: 'Trưởng khoa đã phê duyệt khóa bảng công thành công.' });
+    } else if (action === 'admin_unlock') {
+      if (hasApproval) {
+        await pool.query(
+          `UPDATE approvals 
+           SET status = 'draft', 
+               manager_approved_by = NULL, manager_approved_at = NULL, 
+               director_approved_by = NULL, director_approved_at = NULL 
+           WHERE id = $1`,
+          [currentRes.rows[0].id]
+        );
+      }
+      return res.json({ message: 'Quản trị viên đã mở khóa bảng công thành công.' });
     }
 
     return res.status(400).json({ message: 'Hành động không hợp lệ.' });

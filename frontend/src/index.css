@@ -255,6 +255,15 @@ p {
   background: #10b981ec;
 }
 
+.btn-warning {
+  background: #d97706;
+  color: #fff;
+}
+
+.btn-warning:hover {
+  background: #b45309;
+}
+
 /* Table Design */
 .table-container {
   overflow-x: auto;

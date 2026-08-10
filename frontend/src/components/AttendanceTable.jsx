@@ -232,7 +232,13 @@ export default function AttendanceTable({ user, token }) {
   };
 
   const handleApprove = async (actionType) => {
-    // actionType: 'manager_approve' or 'director_approve'
+    // actionType: 'manager_approve', 'director_approve', 'admin_unlock'
+    if (actionType === 'admin_unlock') {
+      const confirmUnlock = window.confirm(
+        `Bạn có chắc chắn muốn MỞ KHÓA bảng chấm công Tháng ${month}/${year}? Bảng công sẽ quay về trạng thái Bản nháp và cho phép chỉnh sửa.`
+      );
+      if (!confirmUnlock) return;
+    }
     const deptId = user.role === 'manager' ? user.department_id : 1;
     try {
       setLoading(true);
@@ -507,6 +513,12 @@ export default function AttendanceTable({ user, token }) {
             {user.role === 'director' && approval.status === 'manager_approved' && (
               <button className="btn btn-primary" onClick={() => handleApprove('director_approve')} disabled={loading}>
                 🔒 Khóa Bảng Công (Trưởng khoa)
+              </button>
+            )}
+
+            {user.role === 'admin' && approval.status !== 'draft' && (
+              <button className="btn btn-warning" onClick={() => handleApprove('admin_unlock')} disabled={loading}>
+                🔓 Mở Khóa Bảng Công (Admin)
               </button>
             )}
           </div>
