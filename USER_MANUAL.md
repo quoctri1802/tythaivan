@@ -112,5 +112,5 @@ graph TD
 > Số công bồi dưỡng độc hại hiện vật trong tháng của nhân viên được tính tự động theo công thức chuẩn hóa:
 > **`Tổng ngày độc hại hiện vật = (Số ngày đi làm ngày thường * 1) + (Số ca trực 24h * 2)`**
 > *Trong đó:*
-> * **Số ngày đi làm ngày thường (x 1)**: Bao gồm các ngày đi làm có mặt đầy đủ `+`, tiêm chủng dịch vụ `Tc`, đi công tác `CT`, đi hội nghị học tập `H` (mỗi ngày tính 1); và làm nửa buổi `-` (tính 0.5) rơi vào các ngày làm việc hành chính từ thứ Hai đến thứ Sáu (loại trừ các ngày thứ Bảy, Chủ Nhật và các ngày nghỉ Lễ/Tết).
-> * **Số ca trực 24h (x 2)**: Mỗi ca trực chuyên môn `T` (24 giờ liên tục) được tính hệ số 2 công bồi dưỡng độc hại hiện vật (áp dụng cho mọi ngày trong tuần bao gồm cả ngày thường, ngày nghỉ cuối tuần và ngày lễ).
+> * **Số ngày đi làm ngày thường (x 1)**: Chỉ áp dụng cho ngày đi làm đầy đủ ký hiệu **`+`** (Lương thời gian $\ge$ 4h) rơi vào các ngày làm việc hành chính từ thứ Hai đến thứ Sáu (loại trừ các ngày thứ Bảy, Chủ Nhật và các ngày nghỉ Lễ/Tết). Tất cả các ký hiệu còn lại (như `-`, `Tc`, `CT`, `H`...) đều **không** được tính độc hại hiện vật.
+> * **Số ca trực 24h (x 2)**: Mỗi ca trực chuyên môn **`T`** (24 giờ liên tục) được tính hệ số 2 công bồi dưỡng độc hại hiện vật (áp dụng cho mọi ngày trong tuần bao gồm cả ngày thường, ngày nghỉ cuối tuần và ngày lễ).

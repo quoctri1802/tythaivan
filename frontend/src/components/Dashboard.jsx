@@ -165,12 +165,8 @@ export default function Dashboard({ user, token, setActivePage }) {
           } else {
             const dateObj = new Date(r.date);
             const isWkDay = dateObj.getDay() !== 0 && dateObj.getDay() !== 6;
-            if (isWkDay) {
-              if (['+', 'Tc', 'CT', 'H'].includes(sym)) {
-                tk += 1;
-              } else if (sym === '-') {
-                tk += 0.5;
-              }
+            if (isWkDay && sym === '+') {
+              tk += 1;
             }
           }
         }

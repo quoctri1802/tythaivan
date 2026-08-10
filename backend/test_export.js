@@ -95,12 +95,8 @@ async function testExport() {
         if (emp.has_toxic_in_kind) {
           if (symbol === 'T') {
             countToxicInKind += 2;
-          } else if (isWkDay) {
-            if (['+', 'Tc', 'CT', 'H'].includes(symbol)) {
-              countToxicInKind += 1;
-            } else if (symbol === '-') {
-              countToxicInKind += 0.5;
-            }
+          } else if (isWkDay && symbol === '+') {
+            countToxicInKind += 1;
           }
         }
       }

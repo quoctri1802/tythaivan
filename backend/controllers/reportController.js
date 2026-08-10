@@ -124,16 +124,12 @@ const calculateMonthlySummaries = async (month, year, departmentId) => {
         countToxicSalary++;
       }
 
-      // Count toxic allowance in kind (đi làm x 1, trực ca x 2)
+      // Count toxic allowance in kind: only (+) on weekdays (x1) and (T) (x2)
       if (emp.has_toxic_in_kind) {
         if (symbol === 'T') {
           countToxicInKind += 2;
-        } else if (isWkDay) {
-          if (['+', 'Tc', 'CT', 'H'].includes(symbol)) {
-            countToxicInKind += 1;
-          } else if (symbol === '-') {
-            countToxicInKind += 0.5;
-          }
+        } else if (isWkDay && symbol === '+') {
+          countToxicInKind += 1;
         }
       }
     }
