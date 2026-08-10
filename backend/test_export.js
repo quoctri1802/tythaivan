@@ -91,7 +91,18 @@ async function testExport() {
 
         const isActive = ['+', '-', 'T', 'Tc', 'TTc', 'Td', 'cd'].includes(symbol);
         if (emp.has_toxic_salary && isActive) countToxicSalary++;
-        if (emp.has_toxic_in_kind && isWkDay && isActive) countToxicInKind++;
+        
+        if (emp.has_toxic_in_kind) {
+          if (symbol === 'T') {
+            countToxicInKind += 2;
+          } else if (isWkDay) {
+            if (['+', 'Tc', 'CT', 'H'].includes(symbol)) {
+              countToxicInKind += 1;
+            } else if (symbol === '-') {
+              countToxicInKind += 0.5;
+            }
+          }
+        }
       }
 
       let unpaidWeekdays = 0;

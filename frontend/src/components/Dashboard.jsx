@@ -159,9 +159,21 @@ export default function Dashboard({ user, token, setActivePage }) {
         const isActive = ['+', '-', 'T', 'Tc', 'TTc', 'Td', 'cd'].includes(sym);
         if (user.has_toxic_salary && isActive) ts++;
         
-        const dateObj = new Date(r.date);
-        const isWkDay = dateObj.getDay() !== 0 && dateObj.getDay() !== 6;
-        if (user.has_toxic_in_kind && isWkDay && isActive) tk++;
+        if (user.has_toxic_in_kind) {
+          if (sym === 'T') {
+            tk += 2;
+          } else {
+            const dateObj = new Date(r.date);
+            const isWkDay = dateObj.getDay() !== 0 && dateObj.getDay() !== 6;
+            if (isWkDay) {
+              if (['+', 'Tc', 'CT', 'H'].includes(sym)) {
+                tk += 1;
+              } else if (sym === '-') {
+                tk += 0.5;
+              }
+            }
+          }
+        }
       });
       setStats({ workDays: w, duties: d, leaves: l, unpaid: u, toxicSalary: ts, toxicInKind: tk, vaccinations: vac });
     } else {
