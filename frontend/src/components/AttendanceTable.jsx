@@ -440,7 +440,7 @@ export default function AttendanceTable({ user, token }) {
 
   return (
     <div>
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '24px' }}>
+      <div className="header-row">
         <div>
           <h1>Bảng Chấm Công Lịch Tháng</h1>
           <p style={{ color: 'var(--text-secondary)' }}>Chọn tháng, click vào ô tương ứng để cập nhật ký hiệu chấm công.</p>

@@ -207,7 +207,7 @@ export default function Settings({ user, token }) {
 
   return (
     <div>
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '24px' }}>
+      <div className="header-row">
         <div>
           <h1>Quản Lý Danh Mục Hệ Thống</h1>
           <p style={{ color: 'var(--text-secondary)' }}>Thiết lập danh sách nhân sự, cấu hình quyền và các chế độ phụ cấp độc hại.</p>

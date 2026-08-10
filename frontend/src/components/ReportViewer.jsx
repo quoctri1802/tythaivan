@@ -65,7 +65,7 @@ export default function ReportViewer({ token }) {
 
   return (
     <div>
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '24px' }}>
+      <div className="header-row">
         <div>
           <h1>Tổng Hợp & Xuất Báo Cáo Tháng</h1>
           <p style={{ color: 'var(--text-secondary)' }}>Xem trước dữ liệu tổng hợp của 4 sheet và tải xuống file Excel chuẩn thông tư 107.</p>

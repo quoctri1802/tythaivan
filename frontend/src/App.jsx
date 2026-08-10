@@ -10,6 +10,7 @@ export default function App() {
   const [user, setUser] = useState(null);
   const [activePage, setActivePage] = useState('dashboard');
   const [initializing, setInitializing] = useState(true);
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   useEffect(() => {
     // Check localStorage on mount
@@ -35,6 +36,7 @@ export default function App() {
     setUser(null);
     setToken('');
     setActivePage('dashboard');
+    setMobileMenuOpen(false);
   };
 
   if (initializing) {
@@ -59,8 +61,24 @@ export default function App() {
 
   return (
     <div className="app-container">
+      {/* Mobile Top Header */}
+      <header className="mobile-header">
+        <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+          <img src="/logo.jpg" alt="Logo" style={{ width: '32px', height: '32px', borderRadius: '50%', objectFit: 'cover' }} />
+          <span style={{ fontWeight: 'bold', color: 'white', fontSize: '15px', letterSpacing: '-0.3px' }}>TYT HẢI VÂN</span>
+        </div>
+        <button className="mobile-menu-toggle" onClick={() => setMobileMenuOpen(!mobileMenuOpen)}>
+          {mobileMenuOpen ? '✕' : '☰'}
+        </button>
+      </header>
+
+      {/* Backdrop overlay for mobile menu */}
+      {mobileMenuOpen && (
+        <div className="sidebar-overlay" onClick={() => setMobileMenuOpen(false)}></div>
+      )}
+
       {/* Sidebar Navigation */}
-      <aside className="sidebar">
+      <aside className={`sidebar ${mobileMenuOpen ? 'mobile-open' : ''}`}>
         <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '24px' }}>
           <img src="/logo.jpg" alt="Logo TYT Hải Vân" style={{ width: '38px', height: '38px', borderRadius: '50%', objectFit: 'cover', border: '1.5px solid rgba(255, 255, 255, 0.2)' }} />
           <div>
@@ -73,7 +91,7 @@ export default function App() {
           <ul className="nav-menu">
             <li>
               <button 
-                onClick={() => setActivePage('dashboard')} 
+                onClick={() => { setActivePage('dashboard'); setMobileMenuOpen(false); }} 
                 className={`nav-link ${activePage === 'dashboard' ? 'active' : ''}`}
                 style={{ width: '100%', background: 'none', border: 'none', textAlign: 'left', fontInherit: 'inherit' }}
               >
@@ -82,7 +100,7 @@ export default function App() {
             </li>
             <li>
               <button 
-                onClick={() => setActivePage('attendance')} 
+                onClick={() => { setActivePage('attendance'); setMobileMenuOpen(false); }} 
                 className={`nav-link ${activePage === 'attendance' ? 'active' : ''}`}
                 style={{ width: '100%', background: 'none', border: 'none', textAlign: 'left', fontInherit: 'inherit' }}
               >
@@ -94,7 +112,7 @@ export default function App() {
             {['manager', 'director', 'admin'].includes(user.role) && (
               <li>
                 <button 
-                  onClick={() => setActivePage('report')} 
+                  onClick={() => { setActivePage('report'); setMobileMenuOpen(false); }} 
                   className={`nav-link ${activePage === 'report' ? 'active' : ''}`}
                   style={{ width: '100%', background: 'none', border: 'none', textAlign: 'left', fontInherit: 'inherit' }}
                 >
@@ -107,7 +125,7 @@ export default function App() {
             {['admin', 'manager', 'director'].includes(user.role) && (
               <li>
                 <button 
-                  onClick={() => setActivePage('settings')} 
+                  onClick={() => { setActivePage('settings'); setMobileMenuOpen(false); }} 
                   className={`nav-link ${activePage === 'settings' ? 'active' : ''}`}
                   style={{ width: '100%', background: 'none', border: 'none', textAlign: 'left', fontInherit: 'inherit' }}
                 >
