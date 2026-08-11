@@ -40,6 +40,24 @@ export default function Dashboard({ user, token, setActivePage }) {
   const [todaySaved, setTodaySaved] = useState(false);
   const [todayLoading, setTodayLoading] = useState(false);
   const [todayMessage, setTodayMessage] = useState('');
+  const [attendanceTypes, setAttendanceTypes] = useState([]);
+
+  useEffect(() => {
+    const fetchTypes = async () => {
+      try {
+        const res = await fetch(`${API_BASE_URL}/api/attendance/types`, {
+          headers: { 'Authorization': `Bearer ${token}` }
+        });
+        if (res.ok) {
+          const data = await res.json();
+          setAttendanceTypes(data);
+        }
+      } catch (err) {
+        console.error('Lỗi khi lấy loại công:', err);
+      }
+    };
+    fetchTypes();
+  }, [token]);
 
   useEffect(() => {
     fetchStats();
@@ -292,15 +310,25 @@ export default function Dashboard({ user, token, setActivePage }) {
                     onChange={(e) => setTodaySymbol(e.target.value)}
                     disabled={todayLoading}
                   >
-                    <option value="+">+ : Có mặt đầy đủ (≥ 4h)</option>
-                    <option value="-">- : Có mặt nửa buổi (&lt; 4h)</option>
-                    <option value="T">T : Trực chuyên môn 24h</option>
-                    <option value="Nb">Nb : Nghỉ bù chế độ</option>
-                    <option value="P">P : Nghỉ phép năm</option>
-                    <option value="No">No : Nghỉ không lương</option>
-                    <option value="Ô">Ô : Nghỉ ốm hưởng BHXH</option>
-                    <option value="H">H : Hội nghị học tập</option>
-                    <option value="CT">CT : Đi công tác</option>
+                    {attendanceTypes.length > 0 ? (
+                      attendanceTypes.map(t => (
+                        <option key={t.code} value={t.code}>
+                          {t.code} : {t.name}
+                        </option>
+                      ))
+                    ) : (
+                      <>
+                        <option value="+">+ : Có mặt đầy đủ (≥ 4h)</option>
+                        <option value="-">- : Có mặt nửa buổi (&lt; 4h)</option>
+                        <option value="T">T : Trực chuyên môn 24h</option>
+                        <option value="Nb">Nb : Nghỉ bù chế độ</option>
+                        <option value="P">P : Nghỉ phép năm</option>
+                        <option value="No">No : Nghỉ không lương</option>
+                        <option value="Ô">Ô : Nghỉ ốm hưởng BHXH</option>
+                        <option value="H">H : Hội nghị học tập</option>
+                        <option value="CT">CT : Đi công tác</option>
+                      </>
+                    )}
                   </select>
                 </div>
                 <div>

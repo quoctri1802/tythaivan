@@ -534,17 +534,28 @@ export default function AttendanceTable({ user, token }) {
       {/* Legend guide */}
       <div className="glass-card" style={{ padding: '20px' }}>
         <h3 style={{ fontSize: '15px', fontWeight: '600', marginBottom: '12px', color: 'var(--text-primary)' }}>Ký hiệu Chấm công:</h3>
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(200px, 1fr))', gap: '8px', fontSize: '13px' }}>
-          <div><span className="symbol-badge sym-work" style={{ display: 'inline-flex', marginRight: '6px' }}>+</span> Lương thời gian (≥ 4h)</div>
-          <div><span className="symbol-badge sym-half" style={{ display: 'inline-flex', marginRight: '6px' }}>-</span> Lương thời gian (&lt; 4h)</div>
-          <div><span className="symbol-badge sym-duty" style={{ display: 'inline-flex', marginRight: '6px' }}>T</span> Trực thường chuyên môn</div>
-          <div><span className="symbol-badge sym-duty" style={{ display: 'inline-flex', marginRight: '6px' }}>Tc</span> Tiêm chủng dịch vụ</div>
-          <div><span className="symbol-badge sym-rest" style={{ display: 'inline-flex', marginRight: '6px' }}>Nb</span> Nghỉ bù chế độ</div>
-          <div><span className="symbol-badge sym-unpaid" style={{ display: 'inline-flex', marginRight: '6px' }}>No</span> Nghỉ không lương</div>
-          <div><span className="symbol-badge sym-leave" style={{ display: 'inline-flex', marginRight: '6px' }}>P</span> Nghỉ phép năm</div>
-          <div><span className="symbol-badge sym-sick" style={{ display: 'inline-flex', marginRight: '6px' }}>Ô</span> Nghỉ ốm đau</div>
-          <div><span className="symbol-badge sym-sick" style={{ display: 'inline-flex', marginRight: '6px' }}>Ts</span> Nghỉ thai sản</div>
-          <div><span className="symbol-badge sym-leave" style={{ display: 'inline-flex', marginRight: '6px' }}>H</span> Hội nghị, học tập</div>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(220px, 1fr))', gap: '8px', fontSize: '13px' }}>
+          {attendanceTypes.length > 0 ? (
+            attendanceTypes.map(t => (
+              <div key={t.code} style={{ display: 'flex', alignItems: 'center' }}>
+                <span className={`symbol-badge ${getSymbolClass(t.code)}`} style={{ display: 'inline-flex', marginRight: '6px', minWidth: '28px', justifyContent: 'center' }}>{t.code}</span>
+                <span>{t.name}</span>
+              </div>
+            ))
+          ) : (
+            <>
+              <div><span className="symbol-badge sym-work" style={{ display: 'inline-flex', marginRight: '6px' }}>+</span> Lương thời gian (≥ 4h)</div>
+              <div><span className="symbol-badge sym-half" style={{ display: 'inline-flex', marginRight: '6px' }}>-</span> Lương thời gian (&lt; 4h)</div>
+              <div><span className="symbol-badge sym-duty" style={{ display: 'inline-flex', marginRight: '6px' }}>T</span> Trực thường chuyên môn</div>
+              <div><span className="symbol-badge sym-duty" style={{ display: 'inline-flex', marginRight: '6px' }}>Tc</span> Tiêm chủng dịch vụ</div>
+              <div><span className="symbol-badge sym-rest" style={{ display: 'inline-flex', marginRight: '6px' }}>Nb</span> Nghỉ bù chế độ</div>
+              <div><span className="symbol-badge sym-unpaid" style={{ display: 'inline-flex', marginRight: '6px' }}>No</span> Nghỉ không lương</div>
+              <div><span className="symbol-badge sym-leave" style={{ display: 'inline-flex', marginRight: '6px' }}>P</span> Nghỉ phép năm</div>
+              <div><span className="symbol-badge sym-sick" style={{ display: 'inline-flex', marginRight: '6px' }}>Ô</span> Nghỉ ốm đau</div>
+              <div><span className="symbol-badge sym-sick" style={{ display: 'inline-flex', marginRight: '6px' }}>Ts</span> Nghỉ thai sản</div>
+              <div><span className="symbol-badge sym-leave" style={{ display: 'inline-flex', marginRight: '6px' }}>H</span> Hội nghị, học tập</div>
+            </>
+          )}
         </div>
       </div>
 
