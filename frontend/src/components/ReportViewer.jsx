@@ -69,7 +69,7 @@ export default function ReportViewer({ token }) {
       <div className="header-row">
         <div>
           <h1>Tổng Hợp & Xuất Báo Cáo Tháng</h1>
-          <p style={{ color: 'var(--text-secondary)' }}>Xem trước dữ liệu tổng hợp của 4 sheet và tải xuống file Excel chuẩn thông tư 107.</p>
+          <p style={{ color: 'var(--text-secondary)' }}>Xem trước dữ liệu tổng hợp của 4 sheet và tải xuống file Excel chuẩn thông tư 107/2017/TT-BTc</p>
         </div>
 
         <div style={{ display: 'flex', gap: '12px' }}>
