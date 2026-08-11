@@ -21,7 +21,6 @@ function adjustRows(ws, startRow, templateCount, targetCount) {
     ws.spliceRows(startRow + templateCount, 0, ...Array.from({ length: diff }, () => []));
     
     // Copy styles from the last template row (which is now shifted to startRow + templateCount + diff - 1)
-    // Actually the last template row was at startRow + templateCount - 1
     const srcRow = ws.getRow(startRow + templateCount - 1);
     for (let r = startRow + templateCount; r < startRow + targetCount; r++) {
       const destRow = ws.getRow(r);
@@ -37,6 +36,64 @@ function adjustRows(ws, startRow, templateCount, targetCount) {
   }
 }
 
+function applyWeekendStyling(ws, startRow, endRow, headerRow, month, year) {
+  const lastDay = new Date(year, month, 0).getDate();
+  const monthStr = String(month).padStart(2, '0');
+
+  for (let d = 1; d <= 31; d++) {
+    const col = 2 + d;
+    
+    // Clear values and formatting for non-existent days in shorter months (e.g. day 31 in a 30-day month)
+    if (d > lastDay) {
+      for (let r = headerRow; r <= endRow; r++) {
+        const cell = ws.getRow(r).getCell(col);
+        cell.value = '';
+        cell.fill = { type: 'pattern', pattern: 'none' };
+        cell.border = {};
+      }
+      continue;
+    }
+
+    const dateObj = new Date(year, month - 1, d);
+    const dayOfWeek = dateObj.getDay();
+    const isWeekend = (dayOfWeek === 0 || dayOfWeek === 6); // 0 is Sunday, 6 is Saturday
+
+    // Format header label (e.g., "1\nT7", "2\nCN")
+    const weekdayLabels = ['CN', 'T2', 'T3', 'T4', 'T5', 'T6', 'T7'];
+    const weekdayLabel = weekdayLabels[dayOfWeek];
+    
+    const headerCell = ws.getRow(headerRow).getCell(col);
+    headerCell.value = `${d}\n${weekdayLabel}`;
+    headerCell.alignment = { horizontal: 'center', vertical: 'middle', wrapText: true };
+
+    // Apply formatting to cells in this column
+    for (let r = headerRow; r <= endRow; r++) {
+      const cell = ws.getRow(r).getCell(col);
+      
+      if (isWeekend) {
+        cell.fill = {
+          type: 'pattern',
+          pattern: 'solid',
+          fgColor: { theme: 0, tint: -0.249977111117893 },
+          bgColor: { indexed: 64 }
+        };
+        // For employee data cells (not header and not total row)
+        if (r >= startRow && r < endRow) {
+          cell.font = { name: 'Times New Roman', size: 10, bold: true };
+        }
+      } else {
+        cell.fill = {
+          type: 'pattern',
+          pattern: 'none'
+        };
+        if (r >= startRow && r < endRow) {
+          cell.font = { name: 'Times New Roman', size: 10, bold: false };
+        }
+      }
+    }
+  }
+}
+
 function updateSignatures(ws, labelRow, writerName, managerName, directorName) {
   // Insert 4 rows below the signature labels to write names
   ws.spliceRows(labelRow + 1, 0, ...Array.from({ length: 4 }, () => []));
@@ -46,6 +103,10 @@ function updateSignatures(ws, labelRow, writerName, managerName, directorName) {
   const nameRowObj = ws.getRow(nameRow);
   
   labelRowObj.eachCell({ includeEmpty: true }, (cell, colNumber) => {
+    // Only process master cells to prevent duplicate names in merged columns
+    if (cell.master && cell.master !== cell) {
+      return;
+    }
     const val = cell.value;
     if (val) {
       const valStr = String(val).trim().toLowerCase();
@@ -59,7 +120,10 @@ function updateSignatures(ws, labelRow, writerName, managerName, directorName) {
         destCell.value = managerName;
         destCell.font = { name: 'Times New Roman', size: 11, bold: true };
         destCell.alignment = { horizontal: 'center' };
-      } else if (valStr.includes('thủ trưởng') || valStr.includes('trưởng khoa')) {
+      } else if (valStr.includes('thủ trưởng') || valStr.includes('trưởng khoa') || valStr.includes('trưởng trạm')) {
+        // Change title label itself to "Trưởng khoa"
+        cell.value = "Trưởng khoa";
+        
         const destCell = nameRowObj.getCell(colNumber);
         destCell.value = directorName;
         destCell.font = { name: 'Times New Roman', size: 11, bold: true };
@@ -149,6 +213,9 @@ async function main() {
         ws.getRow(totalRow).getCell(colIdx).value = { formula: `SUM(${colLet}${startRow}:${colLet}${totalRow - 1})` };
       });
 
+      // Apply dynamic weekend styling for Sheet 1
+      applyWeekendStyling(ws, startRow, totalRow, 7, month, year);
+
       let sigLabelRow = null;
       const maxRow = ws.rowCount;
       for (let r = totalRow + 1; r <= maxRow; r++) {
@@ -222,6 +289,9 @@ async function main() {
         ws.getRow(totalRow).getCell(colIdx).value = { formula: `SUM(${colLet}${startRow}:${colLet}${totalRow - 1})` };
       });
 
+      // Apply dynamic weekend styling for Sheet 2
+      applyWeekendStyling(ws, startRow, totalRow, 6, month, year);
+
       let sigLabelRow = null;
       const maxRow = ws.rowCount;
       for (let r = totalRow + 1; r <= maxRow; r++) {
@@ -279,11 +349,13 @@ async function main() {
       ws.getRow(totalRow).getCell(2).value = "Tổng cộng:";
       
       const cell = ws.getRow(totalRow).getCell(34);
-      // In exceljs, merged cell check can be checked by type or checking if parent is different
       const isCellMerged = cell.type === ExcelJS.ValueType.Merge || cell.isMerged;
       if (!isCellMerged) {
         cell.value = { formula: `SUM(AH${startRow}:AH${totalRow - 1})` };
       }
+
+      // Apply dynamic weekend styling for Sheet 3
+      applyWeekendStyling(ws, startRow, totalRow, 6, month, year);
 
       let sigLabelRow = null;
       const maxRow = ws.rowCount;
@@ -351,6 +423,9 @@ async function main() {
       if (!isCellMerged) {
         cell.value = { formula: `SUM(AH${startRow}:AH${totalRow - 1})` };
       }
+
+      // Apply dynamic weekend styling for Sheet 4
+      applyWeekendStyling(ws, startRow, totalRow, 7, month, year);
 
       let sigLabelRow = null;
       const maxRow = ws.rowCount;
