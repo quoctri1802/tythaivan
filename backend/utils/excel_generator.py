@@ -110,7 +110,9 @@ def main():
     report_data = data['reportData']
     employees_report = report_data['data']
 
-    template_path = r"g:\QL cham cong\Chấm công tháng 7.2026.xlsx"
+    script_dir = os.path.dirname(os.path.abspath(__file__))
+    repo_dir = os.path.dirname(os.path.dirname(script_dir))
+    template_path = os.path.join(repo_dir, "Chấm công tháng 7.2026.xlsx")
     if not os.path.exists(template_path):
         print(f"Error: Template not found at {template_path}")
         sys.exit(1)
