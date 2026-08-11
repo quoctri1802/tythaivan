@@ -42,7 +42,7 @@ export default function ReportViewer({ token }) {
       
       if (!res.ok) {
         const errorData = await res.json();
-        throw new Error(errorData.message || 'Lỗi xuất Excel.');
+        throw new Error(errorData.message + (errorData.error ? '\n\nChi tiết lỗi:\n' + errorData.error : ''));
       }
       
       const blob = await res.blob();
