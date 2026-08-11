@@ -81,7 +81,17 @@ const saveAttendanceBulk = async (req, res) => {
       );
 
       const oldSymbol = currentRes.rows.length > 0 ? currentRes.rows[0].symbol : null;
-      const cleanSymbol = symbol && symbol.trim() !== '' ? symbol.toUpperCase().trim() : null;
+      
+      let cleanSymbol = null;
+      if (symbol && symbol.trim() !== '') {
+        const inputSymbol = symbol.trim();
+        // Query to check case-insensitive match and get the actual database-cased code
+        const symCheck = await client.query('SELECT code FROM attendance_types WHERE LOWER(code) = LOWER($1)', [inputSymbol]);
+        if (symCheck.rows.length === 0) {
+          throw new Error(`Ký hiệu chấm công '${inputSymbol}' không tồn tại.`);
+        }
+        cleanSymbol = symCheck.rows[0].code;
+      }
 
       if (oldSymbol === cleanSymbol) {
         // If symbol matches but notes changed, just update notes without auditing symbol
@@ -105,11 +115,6 @@ const saveAttendanceBulk = async (req, res) => {
           ['DELETE_ATTENDANCE', req.user.id, employee_id, date, oldSymbol, null, notes || 'Xóa chấm công']
         );
       } else {
-        // Validate symbol code exists
-        const symCheck = await client.query('SELECT code FROM attendance_types WHERE code = $1', [cleanSymbol]);
-        if (symCheck.rows.length === 0) {
-          throw new Error(`Ký hiệu chấm công '${cleanSymbol}' không tồn tại.`);
-        }
 
         // Upsert record
         if (currentRes.rows.length > 0) {
