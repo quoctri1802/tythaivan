@@ -278,7 +278,7 @@ const exportExcel = async (req, res) => {
 
     // 3. Call Python script
     const scriptPath = path.join(__dirname, '..', 'utils', 'excel_generator.py');
-    const pythonCmd = 'python'; // assumes python is on path
+    const pythonCmd = process.platform === 'win32' ? 'python' : 'python3';
 
     console.log(`Spawning python process to generate excel...`);
     const pythonProcess = spawn(pythonCmd, [scriptPath, tempJsonPath, outputExcelPath]);

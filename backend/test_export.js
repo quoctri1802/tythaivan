@@ -170,7 +170,8 @@ async function testExport() {
     fs.writeFileSync(tempJsonPath, JSON.stringify(payload, null, 2), 'utf8');
 
     console.log("3. Invoking python excel_generator.py...");
-    const pythonProcess = spawn('python', [
+    const pythonCmd = process.platform === 'win32' ? 'python' : 'python3';
+    const pythonProcess = spawn(pythonCmd, [
       path.join(__dirname, 'utils', 'excel_generator.py'),
       tempJsonPath,
       outputExcelPath

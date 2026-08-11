@@ -5,7 +5,8 @@
   "main": "server.js",
   "scripts": {
     "start": "node server.js",
-    "dev": "node server.js"
+    "dev": "node server.js",
+    "postinstall": "pip3 install openpyxl || pip install openpyxl || true"
   },
   "dependencies": {
     "bcryptjs": "^2.4.3",
