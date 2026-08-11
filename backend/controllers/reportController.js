@@ -276,12 +276,11 @@ const exportExcel = async (req, res) => {
 
     fs.writeFileSync(tempJsonPath, JSON.stringify(payload, null, 2), 'utf8');
 
-    // 3. Call Python script
-    const scriptPath = path.join(__dirname, '..', 'utils', 'excel_generator.py');
-    const pythonCmd = process.platform === 'win32' ? 'python' : 'python3';
+    // 3. Call Node.js excel_generator.js script
+    const scriptPath = path.join(__dirname, '..', 'utils', 'excel_generator.js');
 
-    console.log(`Spawning python process to generate excel...`);
-    const pythonProcess = spawn(pythonCmd, [scriptPath, tempJsonPath, outputExcelPath]);
+    console.log(`Spawning node process to generate excel...`);
+    const pythonProcess = spawn('node', [scriptPath, tempJsonPath, outputExcelPath]);
 
     let stdout = '';
     let stderr = '';
@@ -301,9 +300,9 @@ const exportExcel = async (req, res) => {
       } catch (e) {}
 
       if (code !== 0) {
-        console.error('Python script failed with code', code);
+        console.error('Node excel generator script failed with code', code);
         console.error('Stderr:', stderr);
-        return res.status(500).json({ message: 'Lỗi xuất Excel từ script Python.', error: stderr });
+        return res.status(500).json({ message: 'Lỗi xuất Excel từ script ExcelJS.', error: stderr });
       }
 
       // Stream file to response
