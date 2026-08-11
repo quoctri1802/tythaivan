@@ -74,8 +74,7 @@ function applyWeekendStyling(ws, startRow, endRow, headerRow, month, year) {
         cell.fill = {
           type: 'pattern',
           pattern: 'solid',
-          fgColor: { theme: 0, tint: -0.249977111117893 },
-          bgColor: { indexed: 64 }
+          fgColor: { argb: 'FFE2E2E2' } // Light gray color for weekends
         };
         // For employee data cells (not header and not total row)
         if (r >= startRow && r < endRow) {
@@ -102,33 +101,46 @@ function updateSignatures(ws, labelRow, writerName, managerName, directorName) {
   const labelRowObj = ws.getRow(labelRow);
   const nameRowObj = ws.getRow(nameRow);
   
+  let wroteWriter = false;
+  let wroteManager = false;
+  let wroteDirector = false;
+
   labelRowObj.eachCell({ includeEmpty: true }, (cell, colNumber) => {
-    // Only process master cells to prevent duplicate names in merged columns
-    if (cell.master && cell.master !== cell) {
-      return;
-    }
     const val = cell.value;
     if (val) {
       const valStr = String(val).trim().toLowerCase();
       if (valStr.includes('người chấm') || valStr.includes('người lập')) {
-        const destCell = nameRowObj.getCell(colNumber);
-        destCell.value = writerName;
-        destCell.font = { name: 'Times New Roman', size: 11, bold: true };
-        destCell.alignment = { horizontal: 'center' };
+        if (!wroteWriter) {
+          const destCell = nameRowObj.getCell(colNumber);
+          destCell.value = writerName;
+          destCell.font = { name: 'Times New Roman', size: 11, bold: true };
+          destCell.alignment = { horizontal: 'center' };
+          wroteWriter = true;
+        } else {
+          cell.value = "";
+        }
       } else if (valStr.includes('phụ trách')) {
-        const destCell = nameRowObj.getCell(colNumber);
-        destCell.value = managerName;
-        destCell.font = { name: 'Times New Roman', size: 11, bold: true };
-        destCell.alignment = { horizontal: 'center' };
+        if (!wroteManager) {
+          const destCell = nameRowObj.getCell(colNumber);
+          destCell.value = managerName;
+          destCell.font = { name: 'Times New Roman', size: 11, bold: true };
+          destCell.alignment = { horizontal: 'center' };
+          wroteManager = true;
+        } else {
+          cell.value = "";
+        }
       } else if (valStr.includes('thủ trưởng') || valStr.includes('trưởng khoa') || valStr.includes('trưởng trạm')) {
-        // Change title label itself to "Trưởng khoa"
-        cell.value = "Trưởng khoa";
-        
-        const destCell = nameRowObj.getCell(colNumber);
-        destCell.value = directorName;
-        destCell.font = { name: 'Times New Roman', size: 11, bold: true };
-        nameRowObj.rowHeight = 20;
-        destCell.alignment = { horizontal: 'center' };
+        if (!wroteDirector) {
+          cell.value = "Trưởng khoa";
+          const destCell = nameRowObj.getCell(colNumber);
+          destCell.value = directorName;
+          destCell.font = { name: 'Times New Roman', size: 11, bold: true };
+          nameRowObj.rowHeight = 20;
+          destCell.alignment = { horizontal: 'center' };
+          wroteDirector = true;
+        } else {
+          cell.value = "";
+        }
       }
     }
   });
@@ -226,7 +238,12 @@ async function main() {
         }
       }
       if (sigLabelRow) {
-        ws.getRow(sigLabelRow - 1).getCell(27).value = dateSigStr;
+        // Clear columns 20 to 35 in the date row to erase any duplicate template date strings
+        const dateRowObj = ws.getRow(sigLabelRow - 1);
+        for (let c = 20; c <= 35; c++) {
+          dateRowObj.getCell(c).value = "";
+        }
+        dateRowObj.getCell(27).value = dateSigStr;
         updateSignatures(ws, sigLabelRow, writerName, managerName, directorName);
       }
     }
@@ -302,7 +319,11 @@ async function main() {
         }
       }
       if (sigLabelRow) {
-        ws.getRow(sigLabelRow - 1).getCell(29).value = dateSigStr;
+        const dateRowObj = ws.getRow(sigLabelRow - 1);
+        for (let c = 20; c <= 35; c++) {
+          dateRowObj.getCell(c).value = "";
+        }
+        dateRowObj.getCell(29).value = dateSigStr;
         updateSignatures(ws, sigLabelRow, writerName, managerName, directorName);
       }
     }
@@ -367,7 +388,11 @@ async function main() {
         }
       }
       if (sigLabelRow) {
-        ws.getRow(sigLabelRow - 1).getCell(25).value = dateSigStr;
+        const dateRowObj = ws.getRow(sigLabelRow - 1);
+        for (let c = 20; c <= 35; c++) {
+          dateRowObj.getCell(c).value = "";
+        }
+        dateRowObj.getCell(25).value = dateSigStr;
         updateSignatures(ws, sigLabelRow, writerName, managerName, directorName);
       }
     }
@@ -437,7 +462,11 @@ async function main() {
         }
       }
       if (sigLabelRow) {
-        ws.getRow(sigLabelRow - 1).getCell(25).value = dateSigStr;
+        const dateRowObj = ws.getRow(sigLabelRow - 1);
+        for (let c = 20; c <= 35; c++) {
+          dateRowObj.getCell(c).value = "";
+        }
+        dateRowObj.getCell(25).value = dateSigStr;
         updateSignatures(ws, sigLabelRow, writerName, managerName, directorName);
       }
     }

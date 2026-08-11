@@ -226,9 +226,14 @@ const exportExcel = async (req, res) => {
     const reportData = await calculateMonthlySummaries(month, year, deptId);
 
     // Get department name
-    let deptName = 'Tất cả các bộ phận';
+    let deptName = 'Khoa Dược-Thiết bị y tế và Cận lâm sàng';
     if (deptId) {
       const deptRes = await pool.query('SELECT name FROM departments WHERE id = $1', [deptId]);
+      if (deptRes.rows.length > 0) {
+        deptName = deptRes.rows[0].name;
+      }
+    } else {
+      const deptRes = await pool.query('SELECT name FROM departments LIMIT 1');
       if (deptRes.rows.length > 0) {
         deptName = deptRes.rows[0].name;
       }
