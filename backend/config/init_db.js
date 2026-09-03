@@ -98,7 +98,7 @@ const attendanceTypes = [
   { code: 'No', name: 'Nghỉ không lương', is_paid: false, is_toxic_salary: false, is_toxic_in_kind: false, is_duty: false },
   { code: 'P', name: 'Nghỉ phép', is_paid: true, is_toxic_salary: false, is_toxic_in_kind: false, is_duty: false },
   { code: 'Pcđ', name: 'Phép chế độ', is_paid: true, is_toxic_salary: false, is_toxic_in_kind: false, is_duty: false },
-  { code: 'BL', name: 'Bù lễ', is_paid: true, is_toxic_salary: false, is_toxic_in_kind: false, is_duty: false },
+  { code: 'BL', name: 'Bù lễ (Đi làm bù)', is_paid: true, is_toxic_salary: true, is_toxic_in_kind: true, is_duty: false },
   { code: 'Ngl', name: 'Nghỉ lễ', is_paid: true, is_toxic_salary: false, is_toxic_in_kind: false, is_duty: false },
   // Ốm / Thai sản
   { code: 'Ô', name: 'Nghỉ ốm', is_paid: false, is_toxic_salary: false, is_toxic_in_kind: false, is_duty: false }, // BHXH trả

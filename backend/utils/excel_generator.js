@@ -356,7 +356,7 @@ async function main() {
           const col = 2 + d;
           const dateStr = `${year}-${monthStr}-${String(d).padStart(2, '0')}`;
           const symbol = att[dateStr] || '';
-          if (['+', '-', 'T', 'Tc', 'TTc', 'Td', 'cd'].includes(symbol)) {
+          if (['+', '-', 'T', 'Tc', 'TTc', 'Td', 'cd', 'BL'].includes(symbol)) {
             rowObj.getCell(col).value = symbol;
           } else {
             rowObj.getCell(col).value = '';
@@ -430,7 +430,7 @@ async function main() {
           const isWkday = dateObj.getDay() > 0 && dateObj.getDay() < 6; // Mon-Fri
           const isHol = (reportData.holidays || []).includes(dateStr) || (data.holidays || []).includes(dateStr);
 
-          if (isWkday && !isHol && ['+', '-', 'T', 'Tc', 'TTc', 'Td', 'cd'].includes(symbol)) {
+          if (((isWkday && !isHol) || symbol === 'BL') && ['+', '-', 'T', 'Tc', 'TTc', 'Td', 'cd', 'BL'].includes(symbol)) {
             rowObj.getCell(col).value = symbol;
           } else {
             rowObj.getCell(col).value = '';

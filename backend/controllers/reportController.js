@@ -74,7 +74,7 @@ const calculateMonthlySummaries = async (month, year, departmentId) => {
     let countAI = 0; // Nghỉ không lương (No)
     let countAJ = 0; // Công trực (T)
     let countAK = 0; // Nghỉ bù (Nb)
-    let countAL = 0; // Nghỉ phép, lễ, chế độ (P, Pcđ, BL, Ngl)
+    let countAL = 0; // Nghỉ phép, lễ, chế độ (P, Pcđ, Ngl)
     let countAM = 0; // Hưởng BHXH (Ô, Cô, Ts)
 
     // Trực sheet splits
@@ -99,7 +99,7 @@ const calculateMonthlySummaries = async (month, year, departmentId) => {
         countAI++;
       } else if (symbol === 'Nb') {
         countAK++;
-      } else if (['P', 'Pcđ', 'BL', 'Ngl'].includes(symbol)) {
+      } else if (['P', 'Pcđ', 'Ngl'].includes(symbol)) {
         countAL++;
       } else if (['Ô', 'Cô', 'Ts'].includes(symbol)) {
         countAM++;
@@ -118,17 +118,17 @@ const calculateMonthlySummaries = async (month, year, departmentId) => {
       }
 
       // Count toxic allowance by salary
-      // Active days: +, -, T, Tc (and potentially others like TTc, Td, cd)
-      const isActiveWorking = ['+', '-', 'T', 'Tc', 'TTc', 'Td', 'cd'].includes(symbol);
+      // Active days: +, -, T, Tc (and potentially others like TTc, Td, cd, BL)
+      const isActiveWorking = ['+', '-', 'T', 'Tc', 'TTc', 'Td', 'cd', 'BL'].includes(symbol);
       if (emp.has_toxic_salary && isActiveWorking) {
         countToxicSalary++;
       }
 
-      // Count toxic allowance in kind: only (+) on weekdays (x1) and (T) (x2)
+      // Count toxic allowance in kind: only (+) on weekdays (x1), (BL) (x1) and (T) (x2)
       if (emp.has_toxic_in_kind) {
         if (symbol === 'T') {
           countToxicInKind += 2;
-        } else if (isWkDay && symbol === '+') {
+        } else if ((isWkDay && symbol === '+') || symbol === 'BL') {
           countToxicInKind += 1;
         }
       }
@@ -137,20 +137,26 @@ const calculateMonthlySummaries = async (month, year, departmentId) => {
     // AH (Lương thời gian) logic:
     // Starts with total weekdays in the month, and subtracts unpaid/BHXH days that fell on weekdays
     // Also subtracts half-days (-) by 0.5
+    // And if employee worked compensatory (BL) on weekend/holiday, adds 1
     let unpaidWeekdays = 0;
+    let extraWorkingDays = 0;
     for (let d = 1; d <= daysInMonth; d++) {
       const dateStr = `${year}-${month.toString().padStart(2, '0')}-${d.toString().padStart(2, '0')}`;
       const isWkDay = !isWeekend(dateStr) && !holidays.has(dateStr);
+      const symbol = empAtt[dateStr] || '';
       if (isWkDay) {
-        const symbol = empAtt[dateStr] || '';
         if (['No', 'Ô', 'Cô', 'Ts'].includes(symbol)) {
           unpaidWeekdays++;
         } else if (symbol === '-') {
           unpaidWeekdays += 0.5; // Half-day deduction
         }
+      } else {
+        if (symbol === 'BL') {
+          extraWorkingDays++;
+        }
       }
     }
-    countAH = standardWorkingDays - unpaidWeekdays;
+    countAH = standardWorkingDays - unpaidWeekdays + extraWorkingDays;
 
     return {
       employee: {

@@ -178,13 +178,13 @@ export default function Dashboard({ user, token, setActivePage }) {
     
     personalRecords.forEach(r => {
       const sym = r.symbol;
-      if (['+', '-'].includes(sym)) w += (sym === '+' ? 1 : 0.5);
+      if (['+', '-', 'BL'].includes(sym)) w += (sym === '-' ? 0.5 : 1);
       if (r.symbol === 'T') d++;
       if (r.symbol === 'Tc') vac++;
-      if (['P', 'Pcđ', 'BL'].includes(sym)) l++;
+      if (['P', 'Pcđ', 'Ngl'].includes(sym)) l++;
       if (sym === 'No') u++;
       
-      const isActive = ['+', '-', 'T', 'Tc', 'TTc', 'Td', 'cd'].includes(sym);
+      const isActive = ['+', '-', 'T', 'Tc', 'TTc', 'Td', 'cd', 'BL'].includes(sym);
       if (user.has_toxic_salary && isActive) ts++;
       
       if (user.has_toxic_in_kind) {
@@ -193,7 +193,7 @@ export default function Dashboard({ user, token, setActivePage }) {
         } else {
           const dateObj = new Date(r.date);
           const isWkDay = dateObj.getDay() !== 0 && dateObj.getDay() !== 6;
-          if (isWkDay && sym === '+') {
+          if ((isWkDay && sym === '+') || sym === 'BL') {
             tk += 1;
           }
         }
@@ -205,7 +205,7 @@ export default function Dashboard({ user, token, setActivePage }) {
     records.forEach(r => {
       employeesSet.add(r.employee_id);
       const sym = r.symbol;
-      if (['+', '-'].includes(sym)) totalW += (sym === '+' ? 1 : 0.5);
+      if (['+', '-', 'BL'].includes(sym)) totalW += (sym === '-' ? 0.5 : 1);
       if (sym === 'T') totalD++;
       if (sym === 'Tc') totalVac++;
     });

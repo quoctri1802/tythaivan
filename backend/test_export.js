@@ -66,7 +66,7 @@ async function testExport() {
 
     const summaries = employees.map(emp => {
       const empAtt = attendanceMap[emp.id] || {};
-      let countAH = 0, countAI = 0, countAJ = 0, countAK = 0, countAL = 0, countAM = 0; // countAL: P, Pcđ, BL, Ngl
+      let countAH = 0, countAI = 0, countAJ = 0, countAK = 0, countAL = 0, countAM = 0; // countAL: P, Pcđ, Ngl
       let countDutyWeekday = 0, countDutyWeekend = 0, countDutyHoliday = 0;
       let countToxicSalary = 0, countToxicInKind = 0;
 
@@ -79,7 +79,7 @@ async function testExport() {
 
         if (symbol === 'No') countAI++;
         else if (symbol === 'Nb') countAK++;
-        else if (['P', 'Pcđ', 'BL', 'Ngl'].includes(symbol)) countAL++;
+        else if (['P', 'Pcđ', 'Ngl'].includes(symbol)) countAL++;
         else if (['Ô', 'Cô', 'Ts'].includes(symbol)) countAM++;
 
         if (symbol === 'T') {
@@ -89,29 +89,32 @@ async function testExport() {
           else countDutyWeekday++;
         }
 
-        const isActive = ['+', '-', 'T', 'Tc', 'TTc', 'Td', 'cd'].includes(symbol);
+        const isActive = ['+', '-', 'T', 'Tc', 'TTc', 'Td', 'cd', 'BL'].includes(symbol);
         if (emp.has_toxic_salary && isActive) countToxicSalary++;
         
         if (emp.has_toxic_in_kind) {
           if (symbol === 'T') {
             countToxicInKind += 2;
-          } else if (isWkDay && symbol === '+') {
+          } else if ((isWkDay && symbol === '+') || symbol === 'BL') {
             countToxicInKind += 1;
           }
         }
       }
 
       let unpaidWeekdays = 0;
+      let extraWorkingDays = 0;
       for (let d = 1; d <= daysInMonth; d++) {
         const dateStr = `${year}-${month.toString().padStart(2, '0')}-${d.toString().padStart(2, '0')}`;
         const isWkDay = !isWeekend(dateStr) && !holidays.has(dateStr);
+        const symbol = empAtt[dateStr] || '';
         if (isWkDay) {
-          const symbol = empAtt[dateStr] || '';
           if (['No', 'Ô', 'Cô', 'Ts'].includes(symbol)) unpaidWeekdays++;
           else if (symbol === '-') unpaidWeekdays += 0.5;
+        } else {
+          if (symbol === 'BL') extraWorkingDays++;
         }
       }
-      countAH = standardWorkingDays - unpaidWeekdays;
+      countAH = standardWorkingDays - unpaidWeekdays + extraWorkingDays;
 
       return {
         employee: {

@@ -36,7 +36,7 @@ Khi thực hiện chấm công, vui lòng nhập chính xác các ký hiệu quy
 | **`Td`** | Trực dịch | Đăng ký trực dịch | Tính 1 ngày độc hại nếu được cấu hình |
 | **`cd`** | Chống dịch | Công tác chống dịch | Tính 1 ngày độc hại nếu được cấu hình |
 | **`Nb`** | Nghỉ bù chế độ | Hưởng lương thời gian bình thường | Không tính ngày làm việc độc hại |
-| **`BL`** | Bù lễ | Hưởng lương thời gian bình thường | Không tính ngày làm việc độc hại |
+| **`BL`** | Bù lễ (Đi làm bù) | 1 ngày công làm việc bình thường | Tính 1 ngày độc hại nếu được cấu hình |
 | **`Ngl`** | Nghỉ lễ | Hưởng lương lễ theo quy định | Không tính ngày làm việc độc hại |
 | **`P`** | Nghỉ phép năm | Hưởng lương phép | Không tính ngày làm việc độc hại |
 | **`Pcđ`** | Phép chế độ | Hưởng lương phép chế độ | Không tính ngày làm việc độc hại |

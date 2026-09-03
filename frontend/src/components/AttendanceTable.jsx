@@ -271,10 +271,10 @@ export default function AttendanceTable({ user, token }) {
   const getSymbolClass = (sym) => {
     if (!sym) return '';
     const code = sym.toUpperCase();
-    if (['+'].includes(code)) return 'sym-work';
+    if (['+', 'BL'].includes(code)) return 'sym-work';
     if (['-'].includes(code)) return 'sym-half';
     if (['T', 'TD', 'CD', 'TTC', 'TC'].includes(code)) return 'sym-duty';
-    if (['NB', 'BL'].includes(code)) return 'sym-rest';
+    if (['NB'].includes(code)) return 'sym-rest';
     if (['NGL'].includes(code)) return 'sym-holiday';
     if (['P', 'PCĐ'].includes(code)) return 'sym-leave';
     if (['Ô', 'CÔ', 'TS'].includes(code)) return 'sym-sick';
@@ -550,6 +550,7 @@ export default function AttendanceTable({ user, token }) {
               <div><span className="symbol-badge sym-duty" style={{ display: 'inline-flex', marginRight: '6px' }}>T</span> Trực thường chuyên môn</div>
               <div><span className="symbol-badge sym-duty" style={{ display: 'inline-flex', marginRight: '6px' }}>Tc</span> Tiêm chủng dịch vụ</div>
               <div><span className="symbol-badge sym-rest" style={{ display: 'inline-flex', marginRight: '6px' }}>Nb</span> Nghỉ bù chế độ</div>
+              <div><span className="symbol-badge sym-work" style={{ display: 'inline-flex', marginRight: '6px' }}>BL</span> Bù lễ (Đi làm bù)</div>
               <div><span className="symbol-badge sym-unpaid" style={{ display: 'inline-flex', marginRight: '6px' }}>No</span> Nghỉ không lương</div>
               <div><span className="symbol-badge sym-leave" style={{ display: 'inline-flex', marginRight: '6px' }}>P</span> Nghỉ phép năm</div>
               <div><span className="symbol-badge sym-holiday" style={{ display: 'inline-flex', marginRight: '6px' }}>Ngl</span> Nghỉ lễ</div>
