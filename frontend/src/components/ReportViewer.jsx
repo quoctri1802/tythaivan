@@ -135,7 +135,8 @@ export default function ReportViewer({ token }) {
                         <th style={{ textAlign: 'center' }}>Công trực (AJ)</th>
                         <th style={{ textAlign: 'center' }}>Nghỉ bù (AK)</th>
                         <th style={{ textAlign: 'center' }}>Nghỉ phép (AL)</th>
-                        <th style={{ textAlign: 'center' }}>Hưởng BHXH (AM)</th>
+                        <th style={{ textAlign: 'center' }}>Nghỉ lễ (AM)</th>
+                        <th style={{ textAlign: 'center' }}>Hưởng BHXH (AN)</th>
                       </tr>
                     </thead>
                     <tbody>
@@ -149,7 +150,8 @@ export default function ReportViewer({ token }) {
                           <td style={{ textAlign: 'center', color: 'var(--accent-light)', fontWeight: 'bold' }}>{row.summaries.AJ || '-'}</td>
                           <td style={{ textAlign: 'center' }}>{row.summaries.AK || '-'}</td>
                           <td style={{ textAlign: 'center' }}>{row.summaries.AL || '-'}</td>
-                          <td style={{ textAlign: 'center', color: 'var(--color-sick)' }}>{row.summaries.AM || '-'}</td>
+                          <td style={{ textAlign: 'center', color: 'var(--color-holiday)', fontWeight: 'bold' }}>{row.summaries.AM || '-'}</td>
+                          <td style={{ textAlign: 'center', color: 'var(--color-sick)' }}>{row.summaries.AN || '-'}</td>
                         </tr>
                       ))}
                       <tr style={{ fontWeight: 'bold', backgroundColor: 'rgba(15, 23, 42, 0.4)' }}>
@@ -169,8 +171,11 @@ export default function ReportViewer({ token }) {
                         <td style={{ textAlign: 'center' }}>
                           {reportData.data.reduce((sum, r) => sum + (r.summaries.AL || 0), 0) || '-'}
                         </td>
-                        <td style={{ textAlign: 'center', color: 'var(--color-sick)' }}>
+                        <td style={{ textAlign: 'center', color: 'var(--color-holiday)', fontWeight: 'bold' }}>
                           {reportData.data.reduce((sum, r) => sum + (r.summaries.AM || 0), 0) || '-'}
+                        </td>
+                        <td style={{ textAlign: 'center', color: 'var(--color-sick)' }}>
+                          {reportData.data.reduce((sum, r) => sum + (r.summaries.AN || 0), 0) || '-'}
                         </td>
                       </tr>
                     </tbody>

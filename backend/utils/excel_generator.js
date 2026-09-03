@@ -214,12 +214,13 @@ async function main() {
         rowObj.getCell(37).value = sums.AK;
         rowObj.getCell(38).value = sums.AL;
         rowObj.getCell(39).value = sums.AM;
+        rowObj.getCell(40).value = sums.AN;
       });
 
       const totalRow = startRow + targetCount;
       ws.getRow(totalRow).getCell(2).value = `Tổng cộng: ${targetCount}`;
       
-      const colLetters = ['AH', 'AI', 'AJ', 'AK', 'AL', 'AM'];
+      const colLetters = ['AH', 'AI', 'AJ', 'AK', 'AL', 'AM', 'AN'];
       colLetters.forEach(colLet => {
         const colIdx = getColIndex(colLet);
         ws.getRow(totalRow).getCell(colIdx).value = { formula: `SUM(${colLet}${startRow}:${colLet}${totalRow - 1})` };
@@ -231,16 +232,19 @@ async function main() {
       let sigLabelRow = null;
       const maxRow = ws.rowCount;
       for (let r = totalRow + 1; r <= maxRow; r++) {
-        const val = ws.getRow(r).getCell(1).value;
-        if (val && String(val).includes('Người chấm công')) {
-          sigLabelRow = r;
-          break;
+        for (let c = 1; c <= 10; c++) {
+          const val = ws.getRow(r).getCell(c).value;
+          if (val && String(val).includes('Người chấm')) {
+            sigLabelRow = r;
+            break;
+          }
         }
+        if (sigLabelRow) break;
       }
       if (sigLabelRow) {
-        // Clear columns 20 to 35 in the date row to erase any duplicate template date strings
+        // Clear columns 20 to 40 in the date row to erase any duplicate template date strings
         const dateRowObj = ws.getRow(sigLabelRow - 1);
-        for (let c = 20; c <= 35; c++) {
+        for (let c = 20; c <= 40; c++) {
           dateRowObj.getCell(c).value = "";
         }
         dateRowObj.getCell(27).value = dateSigStr;

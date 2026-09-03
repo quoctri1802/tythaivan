@@ -74,8 +74,9 @@ const calculateMonthlySummaries = async (month, year, departmentId) => {
     let countAI = 0; // Nghỉ không lương (No)
     let countAJ = 0; // Công trực (T)
     let countAK = 0; // Nghỉ bù (Nb)
-    let countAL = 0; // Nghỉ phép, lễ, chế độ (P, Pcđ, Ngl)
-    let countAM = 0; // Hưởng BHXH (Ô, Cô, Ts)
+    let countAL = 0; // Nghỉ phép (P, Pcđ)
+    let countAM = 0; // Nghỉ lễ (Ngl)
+    let countAN = 0; // Hưởng BHXH (Ô, Cô, Ts)
 
     // Trực sheet splits
     let countDutyWeekday = 0;
@@ -99,10 +100,12 @@ const calculateMonthlySummaries = async (month, year, departmentId) => {
         countAI++;
       } else if (symbol === 'Nb') {
         countAK++;
-      } else if (['P', 'Pcđ', 'Ngl'].includes(symbol)) {
+      } else if (['P', 'Pcđ'].includes(symbol)) {
         countAL++;
-      } else if (['Ô', 'Cô', 'Ts'].includes(symbol)) {
+      } else if (symbol === 'Ngl') {
         countAM++;
+      } else if (['Ô', 'Cô', 'Ts'].includes(symbol)) {
+        countAN++;
       }
 
       // Count duties (T is the main duty symbol)
@@ -175,7 +178,8 @@ const calculateMonthlySummaries = async (month, year, departmentId) => {
         AJ: countAJ > 0 ? countAJ : null,
         AK: countAK > 0 ? countAK : null,
         AL: countAL > 0 ? countAL : null,
-        AM: countAM > 0 ? countAM : null
+        AM: countAM > 0 ? countAM : null,
+        AN: countAN > 0 ? countAN : null
       },
       duty: {
         has_duty: countAJ > 0,
