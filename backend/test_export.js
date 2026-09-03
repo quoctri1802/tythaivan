@@ -66,7 +66,7 @@ async function testExport() {
 
     const summaries = employees.map(emp => {
       const empAtt = attendanceMap[emp.id] || {};
-      let countAH = 0, countAI = 0, countAJ = 0, countAK = 0, countAL = 0, countAM = 0;
+      let countAH = 0, countAI = 0, countAJ = 0, countAK = 0, countAL = 0, countAM = 0; // countAL: P, Pcđ, BL, Ngl
       let countDutyWeekday = 0, countDutyWeekend = 0, countDutyHoliday = 0;
       let countToxicSalary = 0, countToxicInKind = 0;
 
@@ -79,7 +79,7 @@ async function testExport() {
 
         if (symbol === 'No') countAI++;
         else if (symbol === 'Nb') countAK++;
-        else if (['P', 'Pcđ', 'BL'].includes(symbol)) countAL++;
+        else if (['P', 'Pcđ', 'BL', 'Ngl'].includes(symbol)) countAL++;
         else if (['Ô', 'Cô', 'Ts'].includes(symbol)) countAM++;
 
         if (symbol === 'T') {

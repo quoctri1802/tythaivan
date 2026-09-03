@@ -74,7 +74,7 @@ const calculateMonthlySummaries = async (month, year, departmentId) => {
     let countAI = 0; // Nghỉ không lương (No)
     let countAJ = 0; // Công trực (T)
     let countAK = 0; // Nghỉ bù (Nb)
-    let countAL = 0; // Nghỉ phép (P, Pcđ, BL)
+    let countAL = 0; // Nghỉ phép, lễ, chế độ (P, Pcđ, BL, Ngl)
     let countAM = 0; // Hưởng BHXH (Ô, Cô, Ts)
 
     // Trực sheet splits
@@ -99,7 +99,7 @@ const calculateMonthlySummaries = async (month, year, departmentId) => {
         countAI++;
       } else if (symbol === 'Nb') {
         countAK++;
-      } else if (['P', 'Pcđ', 'BL'].includes(symbol)) {
+      } else if (['P', 'Pcđ', 'BL', 'Ngl'].includes(symbol)) {
         countAL++;
       } else if (['Ô', 'Cô', 'Ts'].includes(symbol)) {
         countAM++;

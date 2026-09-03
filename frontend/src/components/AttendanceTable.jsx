@@ -275,6 +275,7 @@ export default function AttendanceTable({ user, token }) {
     if (['-'].includes(code)) return 'sym-half';
     if (['T', 'TD', 'CD', 'TTC', 'TC'].includes(code)) return 'sym-duty';
     if (['NB', 'BL'].includes(code)) return 'sym-rest';
+    if (['NGL'].includes(code)) return 'sym-holiday';
     if (['P', 'PCĐ'].includes(code)) return 'sym-leave';
     if (['Ô', 'CÔ', 'TS'].includes(code)) return 'sym-sick';
     if (['NO'].includes(code)) return 'sym-unpaid';
@@ -551,6 +552,7 @@ export default function AttendanceTable({ user, token }) {
               <div><span className="symbol-badge sym-rest" style={{ display: 'inline-flex', marginRight: '6px' }}>Nb</span> Nghỉ bù chế độ</div>
               <div><span className="symbol-badge sym-unpaid" style={{ display: 'inline-flex', marginRight: '6px' }}>No</span> Nghỉ không lương</div>
               <div><span className="symbol-badge sym-leave" style={{ display: 'inline-flex', marginRight: '6px' }}>P</span> Nghỉ phép năm</div>
+              <div><span className="symbol-badge sym-holiday" style={{ display: 'inline-flex', marginRight: '6px' }}>Ngl</span> Nghỉ lễ</div>
               <div><span className="symbol-badge sym-sick" style={{ display: 'inline-flex', marginRight: '6px' }}>Ô</span> Nghỉ ốm đau</div>
               <div><span className="symbol-badge sym-sick" style={{ display: 'inline-flex', marginRight: '6px' }}>Ts</span> Nghỉ thai sản</div>
               <div><span className="symbol-badge sym-leave" style={{ display: 'inline-flex', marginRight: '6px' }}>H</span> Hội nghị, học tập</div>

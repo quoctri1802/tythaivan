@@ -31,10 +31,18 @@ Khi thực hiện chấm công, vui lòng nhập chính xác các ký hiệu quy
 | **`+`** | Làm việc cả ngày (≥ 4 giờ) | 1 ngày công thời gian | Tính 1 ngày độc hại nếu được cấu hình |
 | **`-`** | Làm việc nửa ngày (< 4 giờ) | 0.5 ngày công thời gian | Tính 0.5 ngày độc hại nếu được cấu hình |
 | **`T`** | Trực chuyên môn 24h | Đăng ký trực ca thường/lễ/Tết | Tính 1 ngày độc hại nếu được cấu hình |
+| **`Tc`** | Tiêm chủng dịch vụ | Hưởng lương thời gian | Tính ngày độc hại nếu được cấu hình |
+| **`TTc`** | Trực tiêm chủng | Đăng ký trực ca tiêm chủng | Tính 1 ngày độc hại nếu được cấu hình |
+| **`Td`** | Trực dịch | Đăng ký trực dịch | Tính 1 ngày độc hại nếu được cấu hình |
+| **`cd`** | Chống dịch | Công tác chống dịch | Tính 1 ngày độc hại nếu được cấu hình |
 | **`Nb`** | Nghỉ bù chế độ | Hưởng lương thời gian bình thường | Không tính ngày làm việc độc hại |
+| **`BL`** | Bù lễ | Hưởng lương thời gian bình thường | Không tính ngày làm việc độc hại |
+| **`Ngl`** | Nghỉ lễ | Hưởng lương lễ theo quy định | Không tính ngày làm việc độc hại |
 | **`P`** | Nghỉ phép năm | Hưởng lương phép | Không tính ngày làm việc độc hại |
+| **`Pcđ`** | Phép chế độ | Hưởng lương phép chế độ | Không tính ngày làm việc độc hại |
 | **`No`** | Nghỉ không lương | Trừ công lương | Không tính ngày làm việc độc hại |
 | **`Ô`** | Nghỉ ốm đau | Trừ công lương (BHXH chi trả) | Không tính ngày làm việc độc hại |
+| **`Cô`** | Con ốm | Trừ công lương (BHXH chi trả) | Không tính ngày làm việc độc hại |
 | **`Ts`** | Nghỉ thai sản | Trừ công lương (BHXH chi trả) | Không tính ngày làm việc độc hại |
 | **`H`** | Hội nghị, học tập | Hưởng lương thời gian | Không tính ngày làm việc độc hại |
 | **`CT`** | Đi công tác | Hưởng lương thời gian | Không tính ngày làm việc độc hại |
