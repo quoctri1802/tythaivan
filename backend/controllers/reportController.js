@@ -326,6 +326,9 @@ const exportExcel = async (req, res) => {
         return res.status(500).json({ message: 'File Excel đầu ra không được tạo thành công.' });
       }
 
+      res.setHeader('Cache-Control', 'no-cache, no-store, must-revalidate');
+      res.setHeader('Pragma', 'no-cache');
+      res.setHeader('Expires', '0');
       res.setHeader('Content-Type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
       res.setHeader('Content-Disposition', `attachment; filename=Bao_cao_cham_cong_Thang_${month}_${year}.xlsx`);
 

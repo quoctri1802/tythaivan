@@ -105,8 +105,36 @@ function adjustRows(ws, startRow, templateCount, targetCount) {
   } else if (diff < 0) {
     const deleteCount = -diff;
     const deleteAt = startRow + targetCount;
-    shiftMerges(ws, deleteAt, diff, deleteCount);
+
+    const mergesToShift = [];
+    const mergesToDelete = [];
+    for (const [key, merge] of Object.entries(ws._merges || {})) {
+      const model = merge.model || merge;
+      if (model.top >= deleteAt && model.bottom < deleteAt + deleteCount) {
+        mergesToDelete.push(key);
+      } else if (model.top >= deleteAt + deleteCount) {
+        mergesToShift.push({
+          top: model.top,
+          left: model.left,
+          bottom: model.bottom,
+          right: model.right,
+          key: key
+        });
+      }
+    }
+
+    for (const k of mergesToDelete) delete ws._merges[k];
+    for (const m of mergesToShift) delete ws._merges[m.key];
+
     ws.spliceRows(deleteAt, deleteCount);
+
+    for (const m of mergesToShift) {
+      const newTop = m.top + diff;
+      const newBottom = m.bottom + diff;
+      if (newTop > 0 && newBottom >= newTop) {
+        try { ws.mergeCells(newTop, m.left, newBottom, m.right); } catch (e) {}
+      }
+    }
   }
 }
 
@@ -177,14 +205,27 @@ function applyWeekendStyling(ws, startRow, totalRow, headerRow, month, year, has
 
 function updateDate(ws, sigLabelRow, monthStr, year, lastDay) {
   const dateRowObj = ws.getRow(sigLabelRow - 1);
-  dateRowObj.eachCell({ includeEmpty: false }, (cell) => {
+  let isHoaKhanh = false;
+  let firstDateCell = null;
+
+  for (let c = 1; c <= ws.columnCount; c++) {
+    const cell = dateRowObj.getCell(c);
     const v = String(cell.value || '').trim();
     const vLower = v.toLowerCase();
     if (vLower.includes('ngày') || vLower.includes('tháng') || vLower.includes('hải vân') || vLower.includes('hòa khánh')) {
-      const location = vLower.includes('hòa khánh') ? 'Hòa Khánh' : 'Hải Vân';
-      cell.value = `${location}, ngày ${String(lastDay).padStart(2, '0')} tháng ${monthStr} năm ${year}`;
+      if (vLower.includes('hòa khánh')) isHoaKhanh = true;
+      if (!firstDateCell) {
+        firstDateCell = cell;
+      } else {
+        cell.value = ''; // clear duplicates across merged columns
+      }
     }
-  });
+  }
+
+  if (firstDateCell) {
+    const location = isHoaKhanh ? 'Hòa Khánh' : 'Hải Vân';
+    firstDateCell.value = `${location}, ngày ${String(lastDay).padStart(2, '0')} tháng ${monthStr} năm ${year}`;
+  }
 }
 
 function setDeptRichText(cell, deptName, fontSize = 12) {

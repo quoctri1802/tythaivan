@@ -36,8 +36,12 @@ export default function ReportViewer({ token }) {
   const handleDownload = async () => {
     try {
       setDownloading(true);
-      const res = await fetch(`${API_BASE_URL}/api/reports/export?month=${month}&year=${year}`, {
-        headers: { 'Authorization': `Bearer ${token}` }
+      const res = await fetch(`${API_BASE_URL}/api/reports/export?month=${month}&year=${year}&_t=${Date.now()}`, {
+        headers: { 
+          'Authorization': `Bearer ${token}`,
+          'Cache-Control': 'no-cache, no-store',
+          'Pragma': 'no-cache'
+        }
       });
       
       if (!res.ok) {
