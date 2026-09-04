@@ -237,6 +237,11 @@ function setDeptRichText(cell, deptName, fontSize = 12) {
   };
 }
 
+function setCellFormulaResult(cell, formula, result) {
+  cell.value = { formula };
+  cell.model.result = (result != null) ? result : 0;
+}
+
 async function main() {
   if (process.argv.length < 4) {
     console.error("Error: Missing arguments. Usage: node excel_generator.js <json_path> <output_path>");
@@ -312,6 +317,8 @@ async function main() {
       const targetCount = employeesReport.length;
       adjustRows(ws, startRow, templateCount, targetCount);
 
+      let sumAH = 0, sumAI = 0, sumAJ = 0, sumAK = 0, sumAL = 0, sumAM = 0;
+
       employeesReport.forEach((empRep, i) => {
         const r = startRow + i;
         const emp = empRep.employee;
@@ -328,21 +335,36 @@ async function main() {
           rowObj.getCell(col).value = (d <= lastDay) ? (att[dateStr] || '') : '';
         }
 
-        rowObj.getCell(34).value = sums.AH;
-        rowObj.getCell(35).value = sums.AI;
-        rowObj.getCell(36).value = sums.AJ;
-        rowObj.getCell(37).value = sums.AK;
-        rowObj.getCell(38).value = sums.AL;
-        rowObj.getCell(39).value = sums.AN;
+        rowObj.getCell(34).value = sums.AH != null ? sums.AH : null;
+        rowObj.getCell(35).value = sums.AI != null ? sums.AI : null;
+        rowObj.getCell(36).value = sums.AJ != null ? sums.AJ : null;
+        rowObj.getCell(37).value = sums.AK != null ? sums.AK : null;
+        rowObj.getCell(38).value = sums.AL != null ? sums.AL : null;
+        rowObj.getCell(39).value = sums.AN != null ? sums.AN : null;
+
+        sumAH += (sums.AH || 0);
+        sumAI += (sums.AI || 0);
+        sumAJ += (sums.AJ || 0);
+        sumAK += (sums.AK || 0);
+        sumAL += (sums.AL || 0);
+        sumAM += (sums.AN || 0);
       });
 
       const totalRow = startRow + targetCount;
       ws.getRow(totalRow).getCell(2).value = `Tổng cộng: ${targetCount}`;
       
-      const colLetters = ['AH', 'AI', 'AJ', 'AK', 'AL', 'AM'];
-      colLetters.forEach(colLet => {
-        const colIdx = getColIndex(colLet);
-        ws.getRow(totalRow).getCell(colIdx).value = { formula: `SUM(${colLet}${startRow}:${colLet}${totalRow - 1})` };
+      const colMap1 = [
+        { col: 'AH', val: sumAH },
+        { col: 'AI', val: sumAI },
+        { col: 'AJ', val: sumAJ },
+        { col: 'AK', val: sumAK },
+        { col: 'AL', val: sumAL },
+        { col: 'AM', val: sumAM }
+      ];
+      colMap1.forEach(item => {
+        const colIdx = getColIndex(item.col);
+        const cell = ws.getRow(totalRow).getCell(colIdx);
+        setCellFormulaResult(cell, `SUM(${item.col}${startRow}:${item.col}${totalRow - 1})`, item.val);
       });
 
       // Apply dynamic weekend styling for Sheet 1
@@ -392,6 +414,11 @@ async function main() {
       const effectiveCount = Math.max(1, targetCount);
       adjustRows(ws, startRow, templateCount, effectiveCount);
 
+      let sumDutyWeekday = 0;
+      let sumDutyWeekend = 0;
+      let sumDutyHoliday = 0;
+      let sumDutyTotal = 0;
+
       if (targetCount > 0) {
         dutyEmployees.forEach((empRep, i) => {
           const r = startRow + i;
@@ -414,24 +441,41 @@ async function main() {
             }
           }
 
-          rowObj.getCell(34).value = duty.weekday;
-          rowObj.getCell(35).value = duty.weekend;
-          rowObj.getCell(36).value = { formula: `SUM(AH${r}:AI${r})` };
+          const wkd = (duty && duty.weekday != null) ? duty.weekday : null;
+          const wke = (duty && duty.weekend != null) ? duty.weekend : null;
+          const hol = (duty && duty.holiday != null) ? duty.holiday : null;
+          const empDutyTotal = ((duty && duty.weekday) || 0) + ((duty && duty.weekend) || 0) + ((duty && duty.holiday) || 0);
+
+          rowObj.getCell(34).value = wkd;
+          rowObj.getCell(35).value = wke;
+          rowObj.getCell(36).value = hol;
+          setCellFormulaResult(rowObj.getCell(37), `SUM(AH${r}:AJ${r})`, empDutyTotal);
+
+          sumDutyWeekday += ((duty && duty.weekday) || 0);
+          sumDutyWeekend += ((duty && duty.weekend) || 0);
+          sumDutyHoliday += ((duty && duty.holiday) || 0);
+          sumDutyTotal += empDutyTotal;
         });
       } else {
         const rowObj = ws.getRow(startRow);
         rowObj.getCell(1).value = '';
         rowObj.getCell(2).value = '';
-        for (let c = 3; c <= 36; c++) rowObj.getCell(c).value = '';
+        for (let c = 3; c <= 37; c++) rowObj.getCell(c).value = '';
       }
 
       const totalRow = startRow + effectiveCount;
       ws.getRow(totalRow).getCell(2).value = `Tổng cộng: ${targetCount}`;
       
-      const colLetters = ['AH', 'AI', 'AJ'];
-      colLetters.forEach(colLet => {
-        const colIdx = getColIndex(colLet);
-        ws.getRow(totalRow).getCell(colIdx).value = { formula: `SUM(${colLet}${startRow}:${colLet}${totalRow - 1})` };
+      const colMap2 = [
+        { col: 'AH', val: sumDutyWeekday },
+        { col: 'AI', val: sumDutyWeekend },
+        { col: 'AJ', val: sumDutyHoliday },
+        { col: 'AK', val: sumDutyTotal }
+      ];
+      colMap2.forEach(item => {
+        const colIdx = getColIndex(item.col);
+        const cell = ws.getRow(totalRow).getCell(colIdx);
+        setCellFormulaResult(cell, `SUM(${item.col}${startRow}:${item.col}${totalRow - 1})`, item.val);
       });
 
       // Apply dynamic weekend styling for Sheet 2
@@ -470,6 +514,7 @@ async function main() {
       const effectiveCount = Math.max(1, targetCount);
       adjustRows(ws, startRow, templateCount, effectiveCount);
 
+      let sumToxicSalary = 0;
       if (targetCount > 0) {
         toxicSalaryEmployees.forEach((empRep, i) => {
           const r = startRow + i;
@@ -493,6 +538,7 @@ async function main() {
           }
 
           rowObj.getCell(34).value = toxic.salary;
+          sumToxicSalary += ((toxic && toxic.salary) || 0);
         });
       } else {
         const rowObj = ws.getRow(startRow);
@@ -507,7 +553,7 @@ async function main() {
       const cell = ws.getRow(totalRow).getCell(34);
       const isCellMerged = cell.type === ExcelJS.ValueType.Merge || cell.isMerged;
       if (!isCellMerged) {
-        cell.value = { formula: `SUM(AH${startRow}:AH${totalRow - 1})` };
+        setCellFormulaResult(cell, `SUM(AH${startRow}:AH${totalRow - 1})`, sumToxicSalary);
       }
 
       // Apply dynamic weekend styling for Sheet 3
@@ -546,6 +592,7 @@ async function main() {
       const effectiveCount = Math.max(1, targetCount);
       adjustRows(ws, startRow, templateCount, effectiveCount);
 
+      let sumToxicInKind = 0;
       if (targetCount > 0) {
         toxicInKindEmployees.forEach((empRep, i) => {
           const r = startRow + i;
@@ -574,6 +621,7 @@ async function main() {
           }
 
           rowObj.getCell(34).value = toxic.in_kind;
+          sumToxicInKind += ((toxic && toxic.in_kind) || 0);
         });
       } else {
         const rowObj = ws.getRow(startRow);
@@ -588,7 +636,7 @@ async function main() {
       const cell = ws.getRow(totalRow).getCell(34);
       const isCellMerged = cell.type === ExcelJS.ValueType.Merge || cell.isMerged;
       if (!isCellMerged) {
-        cell.value = { formula: `SUM(AH${startRow}:AH${totalRow - 1})` };
+        setCellFormulaResult(cell, `SUM(AH${startRow}:AH${totalRow - 1})`, sumToxicInKind);
       }
 
       // Apply dynamic weekend styling for Sheet 4 (hasSubheader = true for row 7 '1 Xuất mức 3')

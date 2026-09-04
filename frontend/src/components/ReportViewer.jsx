@@ -195,12 +195,13 @@ export default function ReportViewer({ token }) {
                         <th>Chức vụ</th>
                         <th style={{ textAlign: 'center' }}>Trực Ngày thường</th>
                         <th style={{ textAlign: 'center' }}>Trực Thứ 7/CN</th>
+                        <th style={{ textAlign: 'center' }}>Trực Ngày lễ</th>
                         <th style={{ textAlign: 'center' }}>Tổng cộng</th>
                       </tr>
                     </thead>
                     <tbody>
                       {reportData.data.filter(r => r.duty.has_duty).map((row, idx) => {
-                        const totalDuty = (row.duty.weekday || 0) + (row.duty.weekend || 0);
+                        const totalDuty = (row.duty.weekday || 0) + (row.duty.weekend || 0) + (row.duty.holiday || 0);
                         return (
                           <tr key={row.employee.id}>
                             <td>{idx + 1}</td>
@@ -208,6 +209,7 @@ export default function ReportViewer({ token }) {
                             <td>{row.employee.title}</td>
                             <td style={{ textAlign: 'center' }}>{row.duty.weekday || '-'}</td>
                             <td style={{ textAlign: 'center' }}>{row.duty.weekend || '-'}</td>
+                            <td style={{ textAlign: 'center' }}>{row.duty.holiday || '-'}</td>
                             <td style={{ textAlign: 'center', color: 'var(--color-duty)', fontWeight: 'bold' }}>{totalDuty || '-'}</td>
                           </tr>
                         );
@@ -220,8 +222,11 @@ export default function ReportViewer({ token }) {
                         <td style={{ textAlign: 'center' }}>
                           {reportData.data.reduce((sum, r) => sum + (r.duty.weekend || 0), 0) || '-'}
                         </td>
+                        <td style={{ textAlign: 'center' }}>
+                          {reportData.data.reduce((sum, r) => sum + (r.duty.holiday || 0), 0) || '-'}
+                        </td>
                         <td style={{ textAlign: 'center', color: 'var(--color-duty)' }}>
-                          {reportData.data.reduce((sum, r) => sum + ((r.duty.weekday || 0) + (r.duty.weekend || 0)), 0) || '-'}
+                          {reportData.data.reduce((sum, r) => sum + ((r.duty.weekday || 0) + (r.duty.weekend || 0) + (r.duty.holiday || 0)), 0) || '-'}
                         </td>
                       </tr>
                     </tbody>
