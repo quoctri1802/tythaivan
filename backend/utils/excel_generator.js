@@ -229,9 +229,42 @@ async function main() {
     if (workbook.getWorksheet('Chấm công')) {
       const ws = workbook.getWorksheet('Chấm công');
       
-      // Update Title details (keep exact richText format)
+      // 1. Top right header (Mẫu C01-HD, Ban hành..., ngày 10/10...)
+      try { ws.mergeCells('Y1:AM1'); } catch (e) {}
+      try { ws.mergeCells('Y2:AM2'); } catch (e) {}
+      try { ws.mergeCells('Y3:AM3'); } catch (e) {}
+      
+      const cellY1 = ws.getCell('Y1');
+      cellY1.value = 'Mẫu C01-HD';
+      cellY1.font = { name: 'Times New Roman', size: 12, bold: true, italic: false };
+      cellY1.alignment = { horizontal: 'center', vertical: 'middle' };
+
+      const cellY2 = ws.getCell('Y2');
+      cellY2.value = 'Ban hành theo Thông tư số 107/2017/TT-BTc';
+      cellY2.font = { name: 'Times New Roman', size: 11, bold: false, italic: false };
+      cellY2.alignment = { horizontal: 'center', vertical: 'middle' };
+
+      const cellY3 = ws.getCell('Y3');
+      cellY3.value = 'ngày 10/10/2017 của Bộ Tài Chính )';
+      cellY3.font = { name: 'Times New Roman', size: 11, italic: true };
+      cellY3.alignment = { horizontal: 'center', vertical: 'middle' };
+
+      // 2. Title block
+      try { ws.mergeCells('A4:AM4'); } catch (e) {}
+      try { ws.mergeCells('A5:AM5'); } catch (e) {}
+
+      const cellA4 = ws.getCell('A4');
+      cellA4.value = 'BẢNG CHẤM CÔNG';
+      cellA4.font = { name: 'Times New Roman', size: 16, bold: true };
+      cellA4.alignment = { horizontal: 'center', vertical: 'middle' };
+
+      const cellA5 = ws.getCell('A5');
+      cellA5.value = `THÁNG ${monthStr} NĂM ${year}`;
+      cellA5.font = { name: 'Times New Roman', size: 12, bold: true };
+      cellA5.alignment = { horizontal: 'center', vertical: 'middle' };
+
+      // Update Department details (keep exact richText format)
       setDeptRichText(ws.getRow(2).getCell(1), deptName, 12);
-      ws.getRow(5).getCell(1).value = `THÁNG ${monthStr} NĂM ${year}`;
 
       const startRow = 8;
       const templateCount = 7;
@@ -288,7 +321,18 @@ async function main() {
         if (sigLabelRow) break;
       }
       if (sigLabelRow) {
-        updateDate(ws, sigLabelRow, monthStr, year, lastDay);
+        const dateRow = sigLabelRow - 1;
+        try { ws.mergeCells(dateRow, 27, dateRow, 39); } catch (e) {}
+        const dateCell = ws.getRow(dateRow).getCell(27);
+        dateCell.value = `Hải Vân, ngày ${String(lastDay).padStart(2, '0')} tháng ${monthStr} năm ${year}`;
+        dateCell.font = { name: 'Times New Roman', size: 12, italic: true };
+        dateCell.alignment = { horizontal: 'center', vertical: 'middle' };
+
+        try { ws.mergeCells(sigLabelRow, 27, sigLabelRow, 39); } catch (e) {}
+        const leaderCell = ws.getRow(sigLabelRow).getCell(27);
+        leaderCell.value = 'Thủ trưởng đơn vị';
+        leaderCell.font = { name: 'Times New Roman', size: 12, bold: true };
+        leaderCell.alignment = { horizontal: 'center', vertical: 'middle' };
       }
     }
 
