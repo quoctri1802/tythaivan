@@ -161,7 +161,7 @@ async function testExport() {
     const payload = {
       month,
       year,
-      department_name: 'Khoa Dược-Thiết bị y tế và Cận lâm sàng',
+      department_name: 'Khoa Dược-Thiết bị Y tế và Cận lâm sàng',
       writer_name: 'Nguyễn Thị Hoàng Hiếu',
       manager_name: 'Nguyễn Thị Hoàng Hiếu',
       director_name: 'Bác sĩ Nguyễn Văn Trưởng',

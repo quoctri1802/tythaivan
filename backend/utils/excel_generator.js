@@ -10,140 +10,190 @@ function getColIndex(colLet) {
   return colIdx;
 }
 
-function copyCellStyle(srcCell, destCell) {
-  destCell.style = srcCell.style;
+function findTemplatePath() {
+  const scriptDir = __dirname;
+  const repoDir = path.dirname(path.dirname(scriptDir));
+
+  // Check specific file in root workspace
+  const exactName = path.join(repoDir, 'Khoa DƯỢC-TBYT-CLS Chấm công tháng .....xlsx');
+  if (fs.existsSync(exactName)) return exactName;
+
+  // Search root directory for any template .xlsx
+  try {
+    const files = fs.readdirSync(repoDir);
+    const found = files.find(f => 
+      f.endsWith('.xlsx') && 
+      !f.startsWith('~$') && 
+      !f.toLowerCase().includes('test') &&
+      !f.toLowerCase().includes('bao_cao') &&
+      (f.toLowerCase().includes('khoa') || f.toLowerCase().includes('chấm công'))
+    );
+    if (found) return path.join(repoDir, found);
+  } catch (e) {}
+
+  // Fallback to backend folder
+  try {
+    const backendDir = path.dirname(scriptDir);
+    const backendFiles = fs.readdirSync(backendDir);
+    const backendFound = backendFiles.find(f => 
+      f.endsWith('.xlsx') && 
+      !f.startsWith('~$') && 
+      !f.toLowerCase().includes('test') &&
+      (f.toLowerCase().includes('khoa') || f.toLowerCase().includes('chấm công'))
+    );
+    if (backendFound) return path.join(backendDir, backendFound);
+  } catch (e) {}
+
+  return exactName;
+}
+
+function shiftMerges(ws, startFromRow, shiftAmount, deleteCount = 0) {
+  if (shiftAmount === 0 || !ws._merges) return;
+  const mergesToShift = [];
+  const mergesToDelete = [];
+
+  for (const [key, merge] of Object.entries(ws._merges)) {
+    const model = merge.model || merge;
+    if (shiftAmount < 0 && deleteCount > 0 && model.top >= startFromRow && model.bottom < startFromRow + deleteCount) {
+      mergesToDelete.push(key);
+    } else if (model.top >= (shiftAmount > 0 ? startFromRow : startFromRow + deleteCount)) {
+      mergesToShift.push({
+        top: model.top,
+        left: model.left,
+        bottom: model.bottom,
+        right: model.right,
+        key: key
+      });
+    }
+  }
+
+  for (const k of mergesToDelete) {
+    delete ws._merges[k];
+  }
+
+  for (const m of mergesToShift) {
+    delete ws._merges[m.key];
+  }
+
+  for (const m of mergesToShift) {
+    const newTop = m.top + shiftAmount;
+    const newBottom = m.bottom + shiftAmount;
+    if (newTop > 0 && newBottom >= newTop) {
+      ws.mergeCells(newTop, m.left, newBottom, m.right);
+    }
+  }
 }
 
 function adjustRows(ws, startRow, templateCount, targetCount) {
   const diff = targetCount - templateCount;
+  if (diff === 0) return;
+
   if (diff > 0) {
-    // Insert empty rows
-    ws.spliceRows(startRow + templateCount, 0, ...Array.from({ length: diff }, () => []));
-    
-    // Copy styles from the last template row (which is now shifted to startRow + templateCount + diff - 1)
-    const srcRow = ws.getRow(startRow + templateCount - 1);
-    for (let r = startRow + templateCount; r < startRow + targetCount; r++) {
+    const insertAt = startRow + templateCount;
+    ws.spliceRows(insertAt, 0, ...Array.from({ length: diff }, () => []));
+    shiftMerges(ws, insertAt, diff);
+
+    const srcRow = ws.getRow(insertAt - 1);
+    for (let r = insertAt; r < insertAt + diff; r++) {
       const destRow = ws.getRow(r);
       destRow.height = srcRow.height;
       srcRow.eachCell({ includeEmpty: true }, (cell, colNumber) => {
         const destCell = destRow.getCell(colNumber);
-        destCell.style = cell.style;
+        destCell.style = Object.assign({}, cell.style);
       });
     }
   } else if (diff < 0) {
-    // Delete rows
-    ws.spliceRows(startRow + targetCount, -diff);
+    const deleteCount = -diff;
+    const deleteAt = startRow + targetCount;
+    shiftMerges(ws, deleteAt, diff, deleteCount);
+    ws.spliceRows(deleteAt, deleteCount);
   }
 }
 
-function applyWeekendStyling(ws, startRow, endRow, headerRow, month, year) {
+function applyWeekendStyling(ws, startRow, totalRow, headerRow, month, year, hasSubheader = false) {
   const lastDay = new Date(year, month, 0).getDate();
-  const monthStr = String(month).padStart(2, '0');
+
+  // Template weekend gray fill: RGB #BFBFBF (theme 0 tint -0.25 equivalent)
+  const weekendFill = {
+    type: 'pattern',
+    pattern: 'solid',
+    fgColor: { argb: 'FFBFBFBF' }
+  };
+
+  // Weekday pure white fill
+  const weekdayFill = {
+    type: 'pattern',
+    pattern: 'solid',
+    fgColor: { argb: 'FFFFFFFF' }
+  };
 
   for (let d = 1; d <= 31; d++) {
-    const col = 2 + d;
-    
-    // Clear values and formatting for non-existent days in shorter months (e.g. day 31 in a 30-day month)
+    const col = 2 + d; // Day 1 = col 3 (C), Day 31 = col 33 (AG)
+    const headerCell = ws.getRow(headerRow).getCell(col);
+
     if (d > lastDay) {
-      for (let r = headerRow; r <= endRow; r++) {
+      // Days that do not exist in this month (e.g. day 31 in a 30-day month)
+      headerCell.value = '';
+      headerCell.style = Object.assign({}, headerCell.style, { fill: weekdayFill });
+
+      if (hasSubheader) {
+        const subCell = ws.getRow(headerRow + 1).getCell(col);
+        subCell.value = '';
+        subCell.style = Object.assign({}, subCell.style, { fill: weekdayFill });
+      }
+
+      for (let r = startRow; r < totalRow; r++) {
         const cell = ws.getRow(r).getCell(col);
         cell.value = '';
-        cell.fill = { type: 'pattern', pattern: 'none' };
-        cell.border = {};
+        cell.style = Object.assign({}, cell.style, { fill: weekdayFill });
       }
       continue;
     }
 
     const dateObj = new Date(year, month - 1, d);
-    const dayOfWeek = dateObj.getDay();
-    const isWeekend = (dayOfWeek === 0 || dayOfWeek === 6); // 0 is Sunday, 6 is Saturday
+    const dayOfWeek = dateObj.getDay(); // 0: Sunday, 6: Saturday
+    const isWeekend = (dayOfWeek === 0 || dayOfWeek === 6);
+    const currentFill = isWeekend ? weekendFill : weekdayFill;
 
-    // Format header label (e.g., "1\nT7", "2\nCN")
-    const weekdayLabels = ['CN', 'T2', 'T3', 'T4', 'T5', 'T6', 'T7'];
-    const weekdayLabel = weekdayLabels[dayOfWeek];
-    
-    const headerCell = ws.getRow(headerRow).getCell(col);
-    headerCell.value = `${d}\n${weekdayLabel}`;
-    headerCell.alignment = { horizontal: 'center', vertical: 'middle', wrapText: true };
+    // Header cell is simple integer day number matching template
+    headerCell.value = d;
+    headerCell.alignment = { horizontal: 'center', vertical: 'middle' };
+    headerCell.style = Object.assign({}, headerCell.style, { fill: currentFill });
 
-    // Apply formatting to cells in this column
-    for (let r = headerRow; r <= endRow; r++) {
+    // Subheader row (Row 7 in Sheet 4: '1 Xuất mức 3')
+    if (hasSubheader) {
+      const subCell = ws.getRow(headerRow + 1).getCell(col);
+      subCell.style = Object.assign({}, subCell.style, { fill: currentFill });
+    }
+
+    // Employee data rows
+    for (let r = startRow; r < totalRow; r++) {
       const cell = ws.getRow(r).getCell(col);
-      
-      if (isWeekend) {
-        cell.fill = {
-          type: 'pattern',
-          pattern: 'solid',
-          fgColor: { argb: 'FFE2E2E2' } // Light gray color for weekends
-        };
-        // For employee data cells (not header and not total row)
-        if (r >= startRow && r < endRow) {
-          cell.font = { name: 'Times New Roman', size: 10, bold: true };
-        }
-      } else {
-        cell.fill = {
-          type: 'pattern',
-          pattern: 'none'
-        };
-        if (r >= startRow && r < endRow) {
-          cell.font = { name: 'Times New Roman', size: 10, bold: false };
-        }
-      }
+      cell.alignment = { horizontal: 'center', vertical: 'middle' };
+      cell.style = Object.assign({}, cell.style, { fill: currentFill });
     }
   }
 }
 
-function updateSignatures(ws, labelRow, writerName, managerName, directorName) {
-  // Insert 4 rows below the signature labels to write names
-  ws.spliceRows(labelRow + 1, 0, ...Array.from({ length: 4 }, () => []));
-  const nameRow = labelRow + 4;
-  
-  const labelRowObj = ws.getRow(labelRow);
-  const nameRowObj = ws.getRow(nameRow);
-  
-  let wroteWriter = false;
-  let wroteManager = false;
-  let wroteDirector = false;
-
-  labelRowObj.eachCell({ includeEmpty: true }, (cell, colNumber) => {
-    const val = cell.value;
-    if (val) {
-      const valStr = String(val).trim().toLowerCase();
-      if (valStr.includes('người chấm') || valStr.includes('người lập')) {
-        if (!wroteWriter) {
-          const destCell = nameRowObj.getCell(colNumber);
-          destCell.value = writerName;
-          destCell.font = { name: 'Times New Roman', size: 11, bold: true };
-          destCell.alignment = { horizontal: 'center' };
-          wroteWriter = true;
-        } else {
-          cell.value = "";
-        }
-      } else if (valStr.includes('phụ trách')) {
-        if (!wroteManager) {
-          const destCell = nameRowObj.getCell(colNumber);
-          destCell.value = managerName;
-          destCell.font = { name: 'Times New Roman', size: 11, bold: true };
-          destCell.alignment = { horizontal: 'center' };
-          wroteManager = true;
-        } else {
-          cell.value = "";
-        }
-      } else if (valStr.includes('thủ trưởng') || valStr.includes('trưởng khoa') || valStr.includes('trưởng trạm')) {
-        if (!wroteDirector) {
-          cell.value = "Trưởng khoa";
-          const destCell = nameRowObj.getCell(colNumber);
-          destCell.value = directorName;
-          destCell.font = { name: 'Times New Roman', size: 11, bold: true };
-          nameRowObj.rowHeight = 20;
-          destCell.alignment = { horizontal: 'center' };
-          wroteDirector = true;
-        } else {
-          cell.value = "";
-        }
-      }
+function updateDate(ws, sigLabelRow, monthStr, year, lastDay) {
+  const dateRowObj = ws.getRow(sigLabelRow - 1);
+  dateRowObj.eachCell({ includeEmpty: false }, (cell) => {
+    const v = String(cell.value || '').trim();
+    const vLower = v.toLowerCase();
+    if (vLower.includes('ngày') || vLower.includes('tháng') || vLower.includes('hải vân') || vLower.includes('hòa khánh')) {
+      const location = vLower.includes('hòa khánh') ? 'Hòa Khánh' : 'Hải Vân';
+      cell.value = `${location}, ngày ${String(lastDay).padStart(2, '0')} tháng ${monthStr} năm ${year}`;
     }
   });
+}
+
+function setDeptRichText(cell, deptName, fontSize = 12) {
+  cell.value = {
+    richText: [
+      { text: "Bộ phận" },
+      { font: { size: fontSize, name: 'Times New Roman', family: 1 }, text: `: ${deptName}` }
+    ]
+  };
 }
 
 async function main() {
@@ -157,14 +207,11 @@ async function main() {
 
   try {
     const data = JSON.parse(fs.readFileSync(jsonPath, 'utf8'));
-    const { month, year, department_name: deptName, writer_name: writerName, manager_name: managerName, director_name: directorName, reportData } = data;
+    const { month, year, department_name: deptName, reportData } = data;
     const employeesReport = reportData.data;
     const monthStr = String(month).padStart(2, '0');
     
-    // Resolve template path
-    const scriptDir = __dirname;
-    const repoDir = path.dirname(path.dirname(scriptDir));
-    const templatePath = path.join(repoDir, "Chấm công tháng 7.2026.xlsx");
+    const templatePath = findTemplatePath();
 
     if (!fs.existsSync(templatePath)) {
       console.error(`Error: Template not found at ${templatePath}`);
@@ -175,7 +222,6 @@ async function main() {
     await workbook.xlsx.readFile(templatePath);
     
     const lastDay = new Date(year, month, 0).getDate();
-    const dateSigStr = `Hải Vân, ngày ${String(lastDay).padStart(2, '0')} tháng ${monthStr} năm ${year}`;
 
     // =========================================================================
     // SHEET 1: Chấm công
@@ -183,8 +229,8 @@ async function main() {
     if (workbook.getWorksheet('Chấm công')) {
       const ws = workbook.getWorksheet('Chấm công');
       
-      // Update Title details
-      ws.getRow(2).getCell(1).value = `Bộ phận: ${deptName}`;
+      // Update Title details (keep exact richText format)
+      setDeptRichText(ws.getRow(2).getCell(1), deptName, 12);
       ws.getRow(5).getCell(1).value = `THÁNG ${monthStr} NĂM ${year}`;
 
       const startRow = 8;
@@ -205,7 +251,7 @@ async function main() {
         for (let d = 1; d <= 31; d++) {
           const col = 2 + d;
           const dateStr = `${year}-${monthStr}-${String(d).padStart(2, '0')}`;
-          rowObj.getCell(col).value = att[dateStr] || '';
+          rowObj.getCell(col).value = (d <= lastDay) ? (att[dateStr] || '') : '';
         }
 
         rowObj.getCell(34).value = sums.AH;
@@ -213,28 +259,28 @@ async function main() {
         rowObj.getCell(36).value = sums.AJ;
         rowObj.getCell(37).value = sums.AK;
         rowObj.getCell(38).value = sums.AL;
-        rowObj.getCell(39).value = sums.AM;
-        rowObj.getCell(40).value = sums.AN;
+        rowObj.getCell(39).value = sums.AN;
       });
 
       const totalRow = startRow + targetCount;
       ws.getRow(totalRow).getCell(2).value = `Tổng cộng: ${targetCount}`;
       
-      const colLetters = ['AH', 'AI', 'AJ', 'AK', 'AL', 'AM', 'AN'];
+      const colLetters = ['AH', 'AI', 'AJ', 'AK', 'AL', 'AM'];
       colLetters.forEach(colLet => {
         const colIdx = getColIndex(colLet);
         ws.getRow(totalRow).getCell(colIdx).value = { formula: `SUM(${colLet}${startRow}:${colLet}${totalRow - 1})` };
       });
 
       // Apply dynamic weekend styling for Sheet 1
-      applyWeekendStyling(ws, startRow, totalRow, 7, month, year);
+      applyWeekendStyling(ws, startRow, totalRow, 7, month, year, false);
 
+      // Update date in signature block
       let sigLabelRow = null;
       const maxRow = ws.rowCount;
       for (let r = totalRow + 1; r <= maxRow; r++) {
         for (let c = 1; c <= 10; c++) {
           const val = ws.getRow(r).getCell(c).value;
-          if (val && String(val).includes('Người chấm')) {
+          if (val && (String(val).includes('Người chấm') || String(val).includes('Người lập'))) {
             sigLabelRow = r;
             break;
           }
@@ -242,13 +288,7 @@ async function main() {
         if (sigLabelRow) break;
       }
       if (sigLabelRow) {
-        // Clear columns 20 to 40 in the date row to erase any duplicate template date strings
-        const dateRowObj = ws.getRow(sigLabelRow - 1);
-        for (let c = 20; c <= 40; c++) {
-          dateRowObj.getCell(c).value = "";
-        }
-        dateRowObj.getCell(27).value = dateSigStr;
-        updateSignatures(ws, sigLabelRow, writerName, managerName, directorName);
+        updateDate(ws, sigLabelRow, monthStr, year, lastDay);
       }
     }
 
@@ -257,14 +297,15 @@ async function main() {
     // =========================================================================
     if (workbook.getWorksheet('Chấm công trực')) {
       const ws = workbook.getWorksheet('Chấm công trực');
-      ws.getRow(2).getCell(1).value = `Bộ phận: ${deptName}`;
+      setDeptRichText(ws.getRow(2).getCell(1), deptName, 11);
       ws.getRow(2).getCell(9).value = `Tháng ${monthStr} Năm ${year}`;
 
-      const dutyEmployees = employeesReport.filter(e => e.duty.has_duty);
+      const dutyEmployees = employeesReport.filter(e => e.duty && e.duty.has_duty);
       const startRow = 7;
       const templateCount = 5;
       const targetCount = dutyEmployees.length;
-      adjustRows(ws, startRow, templateCount, targetCount);
+      const effectiveCount = Math.max(1, targetCount);
+      adjustRows(ws, startRow, templateCount, effectiveCount);
 
       if (targetCount > 0) {
         dutyEmployees.forEach((empRep, i) => {
@@ -281,14 +322,8 @@ async function main() {
             const col = 2 + d;
             const dateStr = `${year}-${monthStr}-${String(d).padStart(2, '0')}`;
             const symbol = att[dateStr] || '';
-            if (symbol === 'T') {
-              rowObj.getCell(col).value = 'T';
-            } else if (['Td', 'TD'].includes(symbol)) {
-              rowObj.getCell(col).value = 'TD';
-            } else if (['cd', 'CD'].includes(symbol)) {
-              rowObj.getCell(col).value = 'cd';
-            } else if (['TTc', 'TTC'].includes(symbol)) {
-              rowObj.getCell(col).value = 'TTc';
+            if (d <= lastDay && ['T', 'Td', 'TD', 'cd', 'CD', 'TTc', 'TTC'].includes(symbol)) {
+              rowObj.getCell(col).value = symbol;
             } else {
               rowObj.getCell(col).value = '';
             }
@@ -296,39 +331,42 @@ async function main() {
 
           rowObj.getCell(34).value = duty.weekday;
           rowObj.getCell(35).value = duty.weekend;
-          rowObj.getCell(36).value = duty.holiday;
-          rowObj.getCell(37).value = { formula: `SUM(AH${r}:AJ${r})` };
+          rowObj.getCell(36).value = { formula: `SUM(AH${r}:AI${r})` };
         });
+      } else {
+        const rowObj = ws.getRow(startRow);
+        rowObj.getCell(1).value = '';
+        rowObj.getCell(2).value = '';
+        for (let c = 3; c <= 36; c++) rowObj.getCell(c).value = '';
       }
 
-      const totalRow = startRow + Math.max(1, targetCount);
+      const totalRow = startRow + effectiveCount;
       ws.getRow(totalRow).getCell(2).value = `Tổng cộng: ${targetCount}`;
       
-      const colLetters = ['AH', 'AI', 'AJ', 'AK'];
+      const colLetters = ['AH', 'AI', 'AJ'];
       colLetters.forEach(colLet => {
         const colIdx = getColIndex(colLet);
         ws.getRow(totalRow).getCell(colIdx).value = { formula: `SUM(${colLet}${startRow}:${colLet}${totalRow - 1})` };
       });
 
       // Apply dynamic weekend styling for Sheet 2
-      applyWeekendStyling(ws, startRow, totalRow, 6, month, year);
+      applyWeekendStyling(ws, startRow, totalRow, 6, month, year, false);
 
+      // Update date in signature block
       let sigLabelRow = null;
       const maxRow = ws.rowCount;
       for (let r = totalRow + 1; r <= maxRow; r++) {
-        const val = ws.getRow(r).getCell(2).value;
-        if (val && String(val).includes('Người chấm')) {
-          sigLabelRow = r;
-          break;
+        for (let c = 1; c <= 5; c++) {
+          const val = ws.getRow(r).getCell(c).value;
+          if (val && (String(val).includes('Người chấm') || String(val).includes('Người lập'))) {
+            sigLabelRow = r;
+            break;
+          }
         }
+        if (sigLabelRow) break;
       }
       if (sigLabelRow) {
-        const dateRowObj = ws.getRow(sigLabelRow - 1);
-        for (let c = 20; c <= 35; c++) {
-          dateRowObj.getCell(c).value = "";
-        }
-        dateRowObj.getCell(29).value = dateSigStr;
-        updateSignatures(ws, sigLabelRow, writerName, managerName, directorName);
+        updateDate(ws, sigLabelRow, monthStr, year, lastDay);
       }
     }
 
@@ -337,40 +375,48 @@ async function main() {
     // =========================================================================
     if (workbook.getWorksheet('Độc hại theo lương')) {
       const ws = workbook.getWorksheet('Độc hại theo lương');
-      ws.getRow(2).getCell(1).value = `Bộ phận: ${deptName}`;
+      setDeptRichText(ws.getRow(2).getCell(1), deptName, 12);
       ws.getRow(2).getCell(7).value = `Tháng ${monthStr} năm ${year}`;
 
       const toxicSalaryEmployees = employeesReport.filter(e => e.employee.has_toxic_salary);
       const startRow = 7;
       const templateCount = 1;
       const targetCount = toxicSalaryEmployees.length;
-      adjustRows(ws, startRow, templateCount, targetCount);
+      const effectiveCount = Math.max(1, targetCount);
+      adjustRows(ws, startRow, templateCount, effectiveCount);
 
-      toxicSalaryEmployees.forEach((empRep, i) => {
-        const r = startRow + i;
-        const emp = empRep.employee;
-        const att = empRep.attendance;
-        const toxic = empRep.toxic;
+      if (targetCount > 0) {
+        toxicSalaryEmployees.forEach((empRep, i) => {
+          const r = startRow + i;
+          const emp = empRep.employee;
+          const att = empRep.attendance;
+          const toxic = empRep.toxic;
 
-        const rowObj = ws.getRow(r);
-        rowObj.getCell(1).value = i + 1;
-        rowObj.getCell(2).value = emp.full_name;
+          const rowObj = ws.getRow(r);
+          rowObj.getCell(1).value = i + 1;
+          rowObj.getCell(2).value = emp.full_name;
 
-        for (let d = 1; d <= 31; d++) {
-          const col = 2 + d;
-          const dateStr = `${year}-${monthStr}-${String(d).padStart(2, '0')}`;
-          const symbol = att[dateStr] || '';
-          if (['+', '-', 'T', 'Tc', 'TTc', 'Td', 'cd', 'BL'].includes(symbol)) {
-            rowObj.getCell(col).value = symbol;
-          } else {
-            rowObj.getCell(col).value = '';
+          for (let d = 1; d <= 31; d++) {
+            const col = 2 + d;
+            const dateStr = `${year}-${monthStr}-${String(d).padStart(2, '0')}`;
+            const symbol = att[dateStr] || '';
+            if (d <= lastDay && ['+', '-', 'T', 'Tc', 'TTc', 'Td', 'cd', 'BL'].includes(symbol)) {
+              rowObj.getCell(col).value = symbol;
+            } else {
+              rowObj.getCell(col).value = '';
+            }
           }
-        }
 
-        rowObj.getCell(34).value = toxic.salary;
-      });
+          rowObj.getCell(34).value = toxic.salary;
+        });
+      } else {
+        const rowObj = ws.getRow(startRow);
+        rowObj.getCell(1).value = '';
+        rowObj.getCell(2).value = '';
+        for (let c = 3; c <= 34; c++) rowObj.getCell(c).value = '';
+      }
 
-      const totalRow = startRow + Math.max(1, targetCount);
+      const totalRow = startRow + effectiveCount;
       ws.getRow(totalRow).getCell(2).value = "Tổng cộng:";
       
       const cell = ws.getRow(totalRow).getCell(34);
@@ -380,24 +426,23 @@ async function main() {
       }
 
       // Apply dynamic weekend styling for Sheet 3
-      applyWeekendStyling(ws, startRow, totalRow, 6, month, year);
+      applyWeekendStyling(ws, startRow, totalRow, 6, month, year, false);
 
+      // Update date in signature block
       let sigLabelRow = null;
       const maxRow = ws.rowCount;
       for (let r = totalRow + 1; r <= maxRow; r++) {
-        const val = ws.getRow(r).getCell(2).value;
-        if (val && String(val).includes('Người chấm')) {
-          sigLabelRow = r;
-          break;
+        for (let c = 1; c <= 5; c++) {
+          const val = ws.getRow(r).getCell(c).value;
+          if (val && (String(val).includes('Người chấm') || String(val).includes('Người lập'))) {
+            sigLabelRow = r;
+            break;
+          }
         }
+        if (sigLabelRow) break;
       }
       if (sigLabelRow) {
-        const dateRowObj = ws.getRow(sigLabelRow - 1);
-        for (let c = 20; c <= 35; c++) {
-          dateRowObj.getCell(c).value = "";
-        }
-        dateRowObj.getCell(25).value = dateSigStr;
-        updateSignatures(ws, sigLabelRow, writerName, managerName, directorName);
+        updateDate(ws, sigLabelRow, monthStr, year, lastDay);
       }
     }
 
@@ -406,45 +451,53 @@ async function main() {
     // =========================================================================
     if (workbook.getWorksheet('Độc hại hiện vật')) {
       const ws = workbook.getWorksheet('Độc hại hiện vật');
-      ws.getRow(2).getCell(1).value = `Bộ phận: ${deptName}`;
+      setDeptRichText(ws.getRow(2).getCell(1), deptName, 12);
       ws.getRow(2).getCell(7).value = `Tháng ${monthStr} năm ${year}`;
 
       const toxicInKindEmployees = employeesReport.filter(e => e.employee.has_toxic_in_kind);
       const startRow = 8;
       const templateCount = 1;
       const targetCount = toxicInKindEmployees.length;
-      adjustRows(ws, startRow, templateCount, targetCount);
+      const effectiveCount = Math.max(1, targetCount);
+      adjustRows(ws, startRow, templateCount, effectiveCount);
 
-      toxicInKindEmployees.forEach((empRep, i) => {
-        const r = startRow + i;
-        const emp = empRep.employee;
-        const att = empRep.attendance;
-        const toxic = empRep.toxic;
+      if (targetCount > 0) {
+        toxicInKindEmployees.forEach((empRep, i) => {
+          const r = startRow + i;
+          const emp = empRep.employee;
+          const att = empRep.attendance;
+          const toxic = empRep.toxic;
 
-        const rowObj = ws.getRow(r);
-        rowObj.getCell(1).value = i + 1;
-        rowObj.getCell(2).value = emp.full_name;
+          const rowObj = ws.getRow(r);
+          rowObj.getCell(1).value = i + 1;
+          rowObj.getCell(2).value = emp.full_name;
 
-        for (let d = 1; d <= 31; d++) {
-          const col = 2 + d;
-          const dateStr = `${year}-${monthStr}-${String(d).padStart(2, '0')}`;
-          const symbol = att[dateStr] || '';
-          
-          const dateObj = new Date(year, month - 1, d);
-          const isWkday = dateObj.getDay() > 0 && dateObj.getDay() < 6; // Mon-Fri
-          const isHol = (reportData.holidays || []).includes(dateStr) || (data.holidays || []).includes(dateStr);
+          for (let d = 1; d <= 31; d++) {
+            const col = 2 + d;
+            const dateStr = `${year}-${monthStr}-${String(d).padStart(2, '0')}`;
+            const symbol = att[dateStr] || '';
+            
+            const dateObj = new Date(year, month - 1, d);
+            const isWkday = dateObj.getDay() > 0 && dateObj.getDay() < 6;
+            const isHol = (reportData.holidays || []).includes(dateStr) || (data.holidays || []).includes(dateStr);
 
-          if (((isWkday && !isHol) || symbol === 'BL') && ['+', '-', 'T', 'Tc', 'TTc', 'Td', 'cd', 'BL'].includes(symbol)) {
-            rowObj.getCell(col).value = symbol;
-          } else {
-            rowObj.getCell(col).value = '';
+            if (d <= lastDay && ((isWkday && !isHol) || symbol === 'BL') && ['+', '-', 'T', 'Tc', 'TTc', 'Td', 'cd', 'BL'].includes(symbol)) {
+              rowObj.getCell(col).value = symbol;
+            } else {
+              rowObj.getCell(col).value = '';
+            }
           }
-        }
 
-        rowObj.getCell(34).value = toxic.in_kind;
-      });
+          rowObj.getCell(34).value = toxic.in_kind;
+        });
+      } else {
+        const rowObj = ws.getRow(startRow);
+        rowObj.getCell(1).value = '';
+        rowObj.getCell(2).value = '';
+        for (let c = 3; c <= 34; c++) rowObj.getCell(c).value = '';
+      }
 
-      const totalRow = startRow + Math.max(1, targetCount);
+      const totalRow = startRow + effectiveCount;
       ws.getRow(totalRow).getCell(2).value = "Tổng cộng:";
       
       const cell = ws.getRow(totalRow).getCell(34);
@@ -453,25 +506,24 @@ async function main() {
         cell.value = { formula: `SUM(AH${startRow}:AH${totalRow - 1})` };
       }
 
-      // Apply dynamic weekend styling for Sheet 4
-      applyWeekendStyling(ws, startRow, totalRow, 7, month, year);
+      // Apply dynamic weekend styling for Sheet 4 (hasSubheader = true for row 7 '1 Xuất mức 3')
+      applyWeekendStyling(ws, startRow, totalRow, 6, month, year, true);
 
+      // Update date in signature block
       let sigLabelRow = null;
       const maxRow = ws.rowCount;
       for (let r = totalRow + 1; r <= maxRow; r++) {
-        const val = ws.getRow(r).getCell(2).value;
-        if (val && String(val).includes('Người chấm')) {
-          sigLabelRow = r;
-          break;
+        for (let c = 1; c <= 5; c++) {
+          const val = ws.getRow(r).getCell(c).value;
+          if (val && (String(val).includes('Người chấm') || String(val).includes('Người lập'))) {
+            sigLabelRow = r;
+            break;
+          }
         }
+        if (sigLabelRow) break;
       }
       if (sigLabelRow) {
-        const dateRowObj = ws.getRow(sigLabelRow - 1);
-        for (let c = 20; c <= 35; c++) {
-          dateRowObj.getCell(c).value = "";
-        }
-        dateRowObj.getCell(25).value = dateSigStr;
-        updateSignatures(ws, sigLabelRow, writerName, managerName, directorName);
+        updateDate(ws, sigLabelRow, monthStr, year, lastDay);
       }
     }
 

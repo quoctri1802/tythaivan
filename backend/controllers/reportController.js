@@ -199,6 +199,7 @@ const calculateMonthlySummaries = async (month, year, departmentId) => {
     month: parseInt(month, 10),
     year: parseInt(year, 10),
     standardWorkingDays,
+    holidays: Array.from(holidays),
     data: summaries
   };
 };
@@ -236,7 +237,7 @@ const exportExcel = async (req, res) => {
     const reportData = await calculateMonthlySummaries(month, year, deptId);
 
     // Get department name
-    let deptName = 'Khoa Dược-Thiết bị y tế và Cận lâm sàng';
+    let deptName = 'Khoa Dược-Thiết bị Y tế và Cận lâm sàng';
     if (deptId) {
       const deptRes = await pool.query('SELECT name FROM departments WHERE id = $1', [deptId]);
       if (deptRes.rows.length > 0) {
